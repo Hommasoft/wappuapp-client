@@ -192,7 +192,22 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 12,
     lineHeight: 19,
-  }
+  },
+  feedItemBottomWrapper: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+  },
+  commentAmountItemWrapper: {
+    paddingRight: 15,
+    paddingBottom: 9,
+    alignSelf: "flex-end",
+  },
+  commentAmountItem: {
+    fontSize: 13,
+    color: theme.primary,
+  },
 });
 
 class FeedListItem extends Component {
@@ -203,7 +218,8 @@ class FeedListItem extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { selected: false };
+    this.state = { selected: false,
+       commentsVisible: false };
   }
 
   itemIsCreatedByMe(item) {
@@ -226,6 +242,10 @@ class FeedListItem extends Component {
 
   deSelectItem() {
     this.setState({ selected: false });
+  }
+
+  toogleComments() {
+    this.setState({ commentsVisible: !this.state.commentsVisible });
   }
 
   showRemoveDialog(item) {
@@ -318,8 +338,9 @@ class FeedListItem extends Component {
   }
 
   render() {
-    const { item, openUserPhotos } = this.props;
+    const { item, openUserPhotos, openItemComments} = this.props;
     const { selected } = this.state;
+    const { commentsVisible } = this.state;
     const ago = time.getTimeAgo(item.createdAt);
 
     if (item.author.type === 'SYSTEM') {
@@ -366,17 +387,28 @@ class FeedListItem extends Component {
               <Text style={styles.feedItemListText}>{item.text}</Text>
             </View>
           }
+            <View style={styles.feedItemBottomWrapper}>
 
-          <VotePanel
-            item={item}
-            voteFeedItem={this.props.voteFeedItem}
-            openRegistrationView={this.props.openRegistrationView}
-          />
+              <VotePanel
+                item={item}
+                voteFeedItem={this.props.voteFeedItem}
+                openRegistrationView={this.props.openRegistrationView}
+              />
 
-          {/* this.renderRemoveButton(item) */}
-
-        </View>
+              <View style={styles.commentAmountItemWrapper}>
+                <TouchableOpacity
+                  onPress={() => this.toogleComments()}
+                >
+                  <Text style={styles.commentAmountItem}>{"0 Comments"}</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
         </TouchableOpacity>
+        {this.state.commentsVisible ?
+          <Text style={styles.commentAmountItem}>{"Kommentit"}</Text>
+          :<View></View>
+        }
       </View>
     );
   }

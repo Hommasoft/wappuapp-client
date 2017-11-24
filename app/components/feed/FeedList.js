@@ -211,6 +211,17 @@ class FeedList extends Component {
   }
 
   @autobind
+  openItemComments(user) {
+    if (user.id) {
+      this.props.navigator.push({
+        component: UserView,
+        name: `${user.name}`,
+        user
+      });
+    }
+  }
+
+  @autobind
   openImagePicker() {
     ImagePickerManager.showImagePicker(ImageCaptureOptions, (response) => {
       if (!response.didCancel && !response.error) {
@@ -293,6 +304,7 @@ class FeedList extends Component {
                 voteFeedItem={this.props.voteFeedItem}
                 isRegistrationInfoValid={this.props.isRegistrationInfoValid}
                 openUserPhotos={this.openUserPhotos}
+                openItemComments={this.openItemComments}
                 openLightBox={this.props.openLightBox} />
               }
               style={[styles.listView]}
@@ -362,7 +374,7 @@ const select = store => {
     isRefreshing: store.feed.get('isRefreshing'),
     isLoadingActionTypes: store.competition.get('isLoadingActionTypes'),
     actionTypes: store.competition.get('actionTypes'),
-    isNotificationVisible: store.competition.get('isNotificationVisible'),
+    isNotificationVisible: store.competition.get('isNotificationVisibl§e'),
     notificationText: store.competition.get('notificationText'),
     isSending: store.competition.get('isSending'),
     userTeam: getUserTeam(store),
