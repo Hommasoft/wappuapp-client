@@ -22,6 +22,7 @@ import time from '../../utils/time';
 import theme from '../../style/theme';
 import { openRegistrationView } from '../../actions/registration';
 import VotePanel from './VotePanel';
+import Comment from './Comment';
 
 const { width } = Dimensions.get('window');
 const FEED_ITEM_MARGIN_DISTANCE = 0;
@@ -207,6 +208,10 @@ const styles = StyleSheet.create({
   commentAmountItem: {
     fontSize: 13,
     color: theme.primary,
+  },
+  commentList: {
+    backgroundColor: theme.lightgrey,
+    flexDirection: 'column',
   },
 });
 
@@ -406,8 +411,12 @@ class FeedListItem extends Component {
           </View>
         </TouchableOpacity>
         {this.state.commentsVisible ?
-          <Text style={styles.commentAmountItem}>{"Kommentit"}</Text>
-          :<View></View>
+          <View style={styles.commentList}>
+            <Comment type={true} msg={"Message"}></Comment>
+            <Comment type={true} msg={"Message"}></Comment>
+            <Comment type={false}></Comment>
+          </View>
+          : <View></View>
         }
       </View>
     );
