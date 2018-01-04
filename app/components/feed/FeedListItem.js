@@ -206,12 +206,12 @@ const styles = StyleSheet.create({
     paddingBottom: 9,
     alignSelf: "flex-end",
   },
-  commentAmountItem: {
-    fontSize: 13,
-    color: theme.primary,
-  },
   commentListStyle: {
     backgroundColor: theme.lightgrey,
+    flexDirection: 'column',
+  },
+  commentIcon: {
+    color: theme.primary,
     flexDirection: 'column',
   },
 });
@@ -228,12 +228,13 @@ class FeedListItem extends Component {
        commentsVisible: false };
   }
 
-  componentWillReceiveProps({ openCommentId }) {
+  componentWillReceiveProps({ commentList, openCommentId }) {
+
     if (openCommentId !== this.props.item.id) {
       this.setState({ commentsVisible: false });
     }
     else {
-      this.setState({ commentsVisible: true });
+      //this.setState({ commentsVisible: true });
     }
   }
 
@@ -264,6 +265,7 @@ class FeedListItem extends Component {
       this.setState({ commentsVisible: false });
     }
     else {
+      this.setState({ commentsVisible: true });
       this.props.loadComments(this.props.item.id);
     }
   }
@@ -418,7 +420,7 @@ class FeedListItem extends Component {
                 <TouchableOpacity
                   onPress={() => this.toogleComments()}
                 >
-                  <Text style={styles.commentAmountItem}>{"0 Comments"}</Text>
+                  <Icon name={'textsms'} size={26} style={[styles.commentIcon]}></Icon>
                 </TouchableOpacity>
               </View>
             </View>

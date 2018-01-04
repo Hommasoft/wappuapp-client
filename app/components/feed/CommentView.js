@@ -5,6 +5,8 @@ import theme from '../../style/theme';
 import LoadingStates from '../../constants/LoadingStates';
 import time from '../../utils/time';
 
+import Icon from 'react-native-vector-icons/MaterialIcons';
+
 const IOS = Platform.OS === 'ios';
 
 class CommentView extends Component {
@@ -28,39 +30,41 @@ class CommentView extends Component {
     switch (this.props.commentListState) {
       case LoadingStates.LOADING:
         return (
-          <Text>Loading comments ...</Text>
+          <View style={styles.commentContainer}>
+            <View style={styles.commentItem}>
+              <Text>Loading comments ...</Text>
+            </View>
+          </View>
         );
       case LoadingStates.FAILED:
         return (
-          <Text>Failed to load comments :(</Text>
+          <View style={styles.commentContainer}>
+            <View style={styles.commentItem}>
+              <Text>Failed to load comments :(</Text>
+            </View>
+          </View>
         );
       default:
         return (
           <View>
-            {(this.props.commentList.length > 0) ?
-              <ListView
-                dataSource={this.state.dataSource}
-                renderRow={item =>
-                  <View style={styles.commentContainer}>
+            <View style={styles.commentContainer}>
+              {(this.props.commentList.length > 0) ?
+                <ListView
+                  dataSource={this.state.dataSource}
+                  renderRow={item =>
                     <View style={styles.commentItem}>
-                      <TouchableOpacity activeOpacity={IOS ? 0.7 : 1} style={styles.feedItemListItemInfo}>
-                        <View style={styles.feedItemListItemAuthor}>
+                      <TouchableOpacity activeOpacity={IOS ? 0.7 : 1}>
                           <Text style={styles.itemAuthorName}>{item.author.name}</Text>
-                          <Text style={styles.itemAuthorTeam}>{item.author.team}</Text>
-                        </View>
-                        <Text style={styles.itemTimestamp}>{time.getTimeAgo(item.createdAt)}</Text>
                       </TouchableOpacity>
                       <Text style={styles.feedItemListText}>{item.text}</Text>
                     </View>
-                  </View>
-                }
-              />
-            : <View></View>
-            }
-            <View style={styles.commentContainer}>
-              <View style={styles.commentItem}>
+                  }
+                />
+              : <View></View>
+              }
+              <View style={styles.newCommentItem}>
                 <TouchableOpacity activeOpacity={IOS ? 0.7 : 1} onPress={() => this.props.onPressAction('COMMENT')}>
-                  <Text style={styles.newCommentText}>{"Add new comment"}</Text>
+                  <Icon name={'textsms'} size={20} style={[styles.newCommentText]}></Icon>
                 </TouchableOpacity>
               </View>
             </View>
@@ -80,8 +84,7 @@ class CommentView extends Component {
 
 const styles = StyleSheet.create({
   commentContainer: {
-    flex: 1,
-    backgroundColor: '#ecebdf',
+    backgroundColor: '#ffffff',
     marginTop: 10,
     marginLeft: 30,
     marginRight: 5,
@@ -100,54 +103,39 @@ const styles = StyleSheet.create({
       width: 1
     },
     paddingBottom: 10,
+    flexDirection: 'column'
   },
   commentItem: {
-    flex: 1,
-    //backgroundColor: '#AACC00',
-    marginTop: 10,
+    flexDirection: 'column',
+    marginTop: 8,
+    marginLeft: 8,
+    marginRight: 8,
+    borderBottomColor: 'grey',
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    paddingBottom: 4,
   },
   feedItemListText: {
-    textAlign: 'center',
-    fontSize: 17,
-    lineHeight: 25,
-    color: theme.dark
-  },
-  feedItemListItemInfo: {
-    flex: 1,
-    flexDirection: 'row',
-    paddingLeft: 15,
-    paddingRight: 15,
+    textAlign: 'left',
+    fontSize: 13,
+    color: theme.dark,
     alignItems: 'flex-start',
-    justifyContent: 'space-between'
-  },
-  feedItemListItemAuthor:{
-    flex: 1,
-    flexDirection: 'column',
-    alignItems: 'flex-start'
+    flexWrap: 'wrap'
   },
   itemAuthorName: {
     fontSize: 13,
     fontWeight: 'bold',
     color: theme.secondary,
-    paddingRight: 10
+    marginRight: 8
   },
-  itemAuthorTeam:{
-    fontSize:11,
-    color: '#aaa'
-  },
-  itemAuthorTeam__my: {
-    color: theme.primary,
-    fontWeight: 'bold'
-  },
-  itemTimestamp: {
-    top:  IOS ? 1 : 2,
-    color: '#aaa',
-    fontSize: 11,
+  newCommentItem: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 8,
+    marginLeft: 8,
+    marginRight: 8,
   },
   newCommentText: {
-    textAlign: 'center',
-    fontSize: 17,
-    lineHeight: 25,
+    //fontSize: 13,
     color: theme.primary,
     fontStyle: "italic",
   },
