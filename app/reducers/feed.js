@@ -11,6 +11,10 @@ import {
   GET_FEED_FAILURE,
   REFRESH_FEED_REQUEST,
   REFRESH_FEED_SUCCESS,
+  APPEND_COMMENTS,
+  LOAD_COMMENTS_REQUEST,
+  LOAD_COMMENTS_SUCCESS,
+  LOAD_COMMENTS_FAILURE,
   DELETE_FEED_ITEM,
   OPEN_LIGHTBOX,
   VOTE_FEED_ITEM_REQUEST,
@@ -23,6 +27,7 @@ import LoadingStates from '../constants/LoadingStates';
 // # Selectors
 export const getFeed = state => state.feed.get('list') || Immutable.List([]);
 export const getLightBoxItemId = state => state.feed.get('lightBoxItemId', null);
+export const getComments = state => state.feed.get('comments') || Immutable.List([]);
 
 export const getAllPostsInStore = createSelector(
   getFeed, getUserImages, getEventImages,
@@ -45,7 +50,10 @@ export const getLightboxItem = createSelector(
 // # Reducer
 const initialState = Immutable.fromJS({
   list: [],
+  comments: [], // Open comments in the client
+  openCommentId: null,  // Parent_Id of the open comments
   listState: LoadingStates.NONE,
+  commentState: LoadingStates.NONE,
   isRefreshing: false,
   lightBoxItem: {},
   lightBoxItemId: {},
@@ -61,6 +69,7 @@ export default function feed(state = initialState, action) {
         state.set('list', Immutable.fromJS(state.get('list')
           .concat(Immutable.fromJS(action.feed)))) :
         state;
+
     case GET_FEED_REQUEST:
       return state.set('listState', LoadingStates.LOADING);
     case GET_FEED_SUCCESS:
@@ -71,6 +80,14 @@ export default function feed(state = initialState, action) {
       return state.set('isRefreshing', true);
     case REFRESH_FEED_SUCCESS:
       return state.set('isRefreshing', false);
+    case APPEND_COMMENTS:
+      return state.set('comments', Immutable.fromJS(action.comment));
+    case LOAD_COMMENTS_REQUEST:
+      return state.set('commentState', LoadingStates.LOADING).set('openCommentId', action.parentId);
+    case LOAD_COMMENTS_SUCCESS:
+      return state.set('commentState', LoadingStates.READY);
+    case LOAD_COMMENTS_FAILURE:
+      return state.set('commentState', LoadingStates.FAILED);
     case DELETE_FEED_ITEM:
       const originalList = state.get('list');
       const itemIndex = originalList.findIndex((item) => item.get('id') === action.item.id);

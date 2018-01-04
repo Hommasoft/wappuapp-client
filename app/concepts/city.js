@@ -4,7 +4,7 @@ import { fromJS, List } from 'immutable';
 import { isNil, parseInt } from 'lodash';
 import api from '../services/api';
 import {createRequestActionTypes} from '../actions';
-import { fetchFeed } from '../actions/feed';
+import { fetchFeed, loadComments } from '../actions/feed';
 import { fetchTeams } from '../actions/team';
 import { fetchEvents } from '../actions/event';
 import { fetchMoodData } from './mood';

@@ -17,12 +17,11 @@ const fetchModels = (modelType, params) => {
       return params[k] ? (encodeURIComponent(k) + '=' + encodeURIComponent(params[k])) : ''
     }).join('&');
   }
-
   return cachedFetch(url);
 };
 
 const fetchMoreFeed = (beforeId, params) => {
-  const extendedParams = Object.assign({ beforeId, limit: 20 }, params);
+  const extendedParams = Object.assign({ beforeId, limit: 20}, params);
 
   let url = Endpoints.urls.feed;
   url += '?' + Object.keys(extendedParams).map(k => {
@@ -30,6 +29,19 @@ const fetchMoreFeed = (beforeId, params) => {
   }).join('&');
 
   return cachedFetch(url);
+};
+
+const fetchComments = (parent_id, params) => {
+  const extendedParams = Object.assign({ parent_id, limit: 20 }, params);
+
+  let url = Endpoints.urls.feed;
+  url += '?' + Object.keys(extendedParams).map(k => {
+    return encodeURIComponent(k) + '=' + encodeURIComponent(extendedParams[k]);
+  }).join('&');
+
+  return wapuFetch(url)
+  .then(checkResponseStatus)
+  .then(response => response.json());
 };
 
 const postAction = (params, location, queryParams) => {
@@ -197,6 +209,7 @@ export default {
   voteFeedItem,
   fetchModels,
   fetchMoreFeed,
+  fetchComments,
   postAction,
   putUser,
   putMood,

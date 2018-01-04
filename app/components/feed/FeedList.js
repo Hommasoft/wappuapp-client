@@ -42,6 +42,7 @@ import {
   postImage,
   postAction,
   openTextActionView,
+  openCommentActionView,
   openCheckInView
 } from '../../actions/competition';
 import reactMixin from 'react-mixin';
@@ -96,12 +97,13 @@ class FeedList extends Component {
   //   //this.clearInterval(this.updateCooldownInterval);
   // }
 
-  componentWillReceiveProps({ feed, feedListState }) {
+  componentWillReceiveProps({ feed, feedListState, }) {
     if (feed !== this.props.feed) {
       this.setState({
         dataSource: this.state.dataSource.cloneWithRows(feed.toJS())
       });
     }
+
     // Scroll to top when user does an action
     if (this.props.isSending){
       this.scrollTop();
@@ -110,7 +112,6 @@ class FeedList extends Component {
     if (this.props.feedListState !== LoadingStates.READY && feedListState === LoadingStates.READY) {
       this.animateList();
     }
-
   }
 
   animateList() {
@@ -247,9 +248,10 @@ class FeedList extends Component {
         return this.chooseImage();
       case 'TEXT':
         return this.props.openTextActionView();
-      case 'CHECK_IN_EVENT': {
+      case 'CHECK_IN_EVENT':
         return this.props.openCheckInView();
-      }
+      case 'COMMENT':
+        return this.props.openCommentActionView(this.props.openCommentId);
       default:
         return this.props.postAction(type);
     }
@@ -282,8 +284,10 @@ class FeedList extends Component {
             <Animated.View style={{ opacity: this.state.listAnimation, transform: [
               { translateY: this.state.listAnimation.interpolate({ inputRange: [0, 1], outputRange: [50, 0] })}
             ]}}>
+
             <ListView
               ref='_scrollView'
+
               dataSource={this.state.dataSource}
               renderRow={item => <FeedListItem
                 item={item}
@@ -293,7 +297,8 @@ class FeedList extends Component {
                 voteFeedItem={this.props.voteFeedItem}
                 isRegistrationInfoValid={this.props.isRegistrationInfoValid}
                 openUserPhotos={this.openUserPhotos}
-                openLightBox={this.props.openLightBox} />
+                openLightBox={this.props.openLightBox}
+                onPressAction={this.onPressAction}/>
               }
               style={[styles.listView]}
               onScroll={this._onScroll}
@@ -346,6 +351,7 @@ const mapDispatchToProps = {
   postImage,
   postAction,
   openTextActionView,
+  openCommentActionView,
   removeFeedItem,
   voteFeedItem,
   openCheckInView,
@@ -369,6 +375,7 @@ const select = store => {
 
     isRegistrationInfoValid,
     isLoadingUserData: store.registration.get('isLoading'),
+    openCommentId: store.feed.get('openCommentId')
   };
 };
 

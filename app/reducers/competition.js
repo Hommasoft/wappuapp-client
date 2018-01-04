@@ -10,6 +10,8 @@ import {
   GET_ACTION_TYPES_FAILURE,
   OPEN_TEXTACTION_VIEW,
   CLOSE_TEXTACTION_VIEW,
+  OPEN_COMMENTACTION_VIEW,
+  CLOSE_COMMENTACTION_VIEW,
   OPEN_CHECKIN_VIEW,
   CLOSE_CHECKIN_VIEW,
   SHOW_NOTIFICATION,
@@ -26,9 +28,11 @@ const initialState = Immutable.fromJS({
   disabledActionTypes: [],
   cooldownTimes: {},
   isTextActionViewOpen: false,
+  isCommentActionViewOpen: false,
   isCheckInViewOpen: false,
   isNotificationVisible: false,
-  notificationText: ''
+  notificationText: '',
+  parentId: null
 });
 
 const getDisabledActions = (state) => {
@@ -58,6 +62,10 @@ export default function competition(state = initialState, action) {
       return state.set('isTextActionViewOpen', true);
     case CLOSE_TEXTACTION_VIEW:
       return state.set('isTextActionViewOpen', false);
+    case OPEN_COMMENTACTION_VIEW:
+      return state.set('isCommentActionViewOpen', true).set('parentId', action.parentId);
+    case CLOSE_COMMENTACTION_VIEW:
+      return state.set('isCommentActionViewOpen', false);
     case OPEN_CHECKIN_VIEW:
       return state.set('isCheckInViewOpen', true);
     case CLOSE_CHECKIN_VIEW:

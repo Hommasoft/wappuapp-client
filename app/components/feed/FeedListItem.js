@@ -11,7 +11,7 @@ import {
   Platform,
   PropTypes,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -22,7 +22,8 @@ import time from '../../utils/time';
 import theme from '../../style/theme';
 import { openRegistrationView } from '../../actions/registration';
 import VotePanel from './VotePanel';
-import Comment from './Comment';
+import CommentView from './CommentView';
+import { loadComments } from '../../actions/feed';
 
 const { width } = Dimensions.get('window');
 const FEED_ITEM_MARGIN_DISTANCE = 0;
@@ -209,7 +210,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: theme.primary,
   },
-  commentList: {
+  commentListStyle: {
     backgroundColor: theme.lightgrey,
     flexDirection: 'column',
   },
@@ -225,6 +226,15 @@ class FeedListItem extends Component {
     super(props);
     this.state = { selected: false,
        commentsVisible: false };
+  }
+
+  componentWillReceiveProps({ openCommentId }) {
+    if (openCommentId !== this.props.item.id) {
+      this.setState({ commentsVisible: false });
+    }
+    else {
+      this.setState({ commentsVisible: true });
+    }
   }
 
   itemIsCreatedByMe(item) {
@@ -250,7 +260,12 @@ class FeedListItem extends Component {
   }
 
   toogleComments() {
-    this.setState({ commentsVisible: !this.state.commentsVisible });
+    if (this.state.commentsVisible) {
+      this.setState({ commentsVisible: false });
+    }
+    else {
+      this.props.loadComments(this.props.item.id);
+    }
   }
 
   showRemoveDialog(item) {
@@ -343,9 +358,8 @@ class FeedListItem extends Component {
   }
 
   render() {
-    const { item, openUserPhotos, openItemComments} = this.props;
+    const { item, openUserPhotos } = this.props;
     const { selected } = this.state;
-    const { commentsVisible } = this.state;
     const ago = time.getTimeAgo(item.createdAt);
 
     if (item.author.type === 'SYSTEM') {
@@ -411,10 +425,13 @@ class FeedListItem extends Component {
           </View>
         </TouchableOpacity>
         {this.state.commentsVisible ?
-          <View style={styles.commentList}>
-            <Comment type={true} msg={"Message"}></Comment>
-            <Comment type={true} msg={"Message"}></Comment>
-            <Comment type={false}></Comment>
+          <View style={styles.commentListStyle}>
+            <CommentView
+              key={this.props.key}
+              commentList={this.props.commentList}
+              commentListState={this.props.commentListState}
+              onPressAction={this.props.onPressAction}
+            />
           </View>
           : <View></View>
         }
@@ -426,8 +443,11 @@ class FeedListItem extends Component {
 const select = store => {
   return {
     actionTypes: store.competition.get('actionTypes'),
+    commentList: store.feed.get('comments').toJS(),
+    commentListState: store.feed.get('commentState'),
+    openCommentId: store.feed.get('openCommentId')
   };
 };
-const mapDispatchToProps = { openRegistrationView };
+const mapDispatchToProps = { openRegistrationView, loadComments };
 
 export default connect(select, mapDispatchToProps)(FeedListItem);

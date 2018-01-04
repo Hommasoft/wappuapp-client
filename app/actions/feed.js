@@ -18,6 +18,14 @@ const {
   // Failure of refresh is also modeled as "success"
   // REFRESH_FEED_FAILURE
 } = createRequestActionTypes('REFRESH_FEED');
+
+const APPEND_COMMENTS = 'APPEND_COMMENTS';
+const {
+  LOAD_COMMENTS_REQUEST,
+  LOAD_COMMENTS_SUCCESS,
+  LOAD_COMMENTS_FAILURE
+} = createRequestActionTypes('LOAD_COMMENTS');
+
 const DELETE_FEED_ITEM = 'DELETE_FEED_ITEM';
 
 const {
@@ -35,7 +43,7 @@ const fetchFeed = () => (dispatch, getState) => {
   }
 
   dispatch({ type: GET_FEED_REQUEST });
-  return api.fetchModels('feed', { cityId, sort })
+  return api.fetchModels('feed', { cityId, sort})
   .then(items => {
     dispatch({
       type: SET_FEED,
@@ -79,6 +87,25 @@ const loadMoreItems = (lastID) => (dispatch, getState) => {
     dispatch({ type: GET_FEED_SUCCESS });
   })
   .catch(error => dispatch({ type: REFRESH_FEED_SUCCESS }));
+};
+
+const loadComments = (parent_id) => (dispatch, getState) => {
+
+  dispatch({
+    type: LOAD_COMMENTS_REQUEST,
+    parentId: parent_id
+   });
+
+  return api.fetchComments(parent_id, {})
+  .then(items => {
+    dispatch({
+      type: APPEND_COMMENTS,
+      comment: items,
+    });
+    dispatch({ type: LOAD_COMMENTS_SUCCESS });
+  })
+  .catch(error => dispatch({ type: LOAD_COMMENTS_FAILURE }));
+
 };
 
 const removeFeedItem = (item) => {
@@ -155,6 +182,10 @@ export {
   GET_FEED_FAILURE,
   REFRESH_FEED_REQUEST,
   REFRESH_FEED_SUCCESS,
+  APPEND_COMMENTS,
+  LOAD_COMMENTS_REQUEST,
+  LOAD_COMMENTS_SUCCESS,
+  LOAD_COMMENTS_FAILURE,
   DELETE_FEED_ITEM,
   OPEN_LIGHTBOX,
   CLOSE_LIGHTBOX,
@@ -162,6 +193,7 @@ export {
   fetchFeed,
   refreshFeed,
   loadMoreItems,
+  loadComments,
   removeFeedItem,
   voteFeedItem,
   openLightBox,
