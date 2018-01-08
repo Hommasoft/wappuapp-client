@@ -205,6 +205,7 @@ const styles = StyleSheet.create({
     paddingRight: 15,
     paddingBottom: 9,
     alignSelf: "flex-end",
+    flexDirection: 'row'
   },
   commentListStyle: {
     backgroundColor: theme.lightgrey,
@@ -212,7 +213,19 @@ const styles = StyleSheet.create({
   },
   commentIcon: {
     color: theme.primary,
-    flexDirection: 'column',
+  },
+  IconNumberStyle: {
+    position:'absolute',
+    right:3,
+    top:4,
+    width:20,
+    height:14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    textAlign: 'center',
+    backgroundColor: theme.primary,
+    color:'#000000',
+    fontSize: 10
   },
 });
 
@@ -417,10 +430,9 @@ class FeedListItem extends Component {
               />
 
               <View style={styles.commentAmountItemWrapper}>
-                <TouchableOpacity
-                  onPress={() => this.toogleComments()}
-                >
-                  <Icon name={'textsms'} size={26} style={[styles.commentIcon]}></Icon>
+                <TouchableOpacity onPress={() => this.toogleComments()}>
+                  <Icon name={'mode-comment'} size={26} style={styles.commentIcon}></Icon>
+                  <Text style={styles.IconNumberStyle}>{'0'}</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -433,6 +445,7 @@ class FeedListItem extends Component {
               commentList={this.props.commentList}
               commentListState={this.props.commentListState}
               onPressAction={this.props.onPressAction}
+              openUserPhotos={this.props.openUserPhotos}
             />
           </View>
           : <View></View>

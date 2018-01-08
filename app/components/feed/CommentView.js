@@ -53,7 +53,7 @@ class CommentView extends Component {
                   dataSource={this.state.dataSource}
                   renderRow={item =>
                     <View style={styles.commentItem}>
-                      <TouchableOpacity activeOpacity={IOS ? 0.7 : 1}>
+                      <TouchableOpacity activeOpacity={IOS ? 0.7 : 1} onPress={() => this.props.openUserPhotos(item.author)}>
                           <Text style={styles.itemAuthorName}>{item.author.name}</Text>
                       </TouchableOpacity>
                       <Text style={styles.feedItemListText}>{item.text}</Text>
@@ -64,7 +64,7 @@ class CommentView extends Component {
               }
               <View style={styles.newCommentItem}>
                 <TouchableOpacity activeOpacity={IOS ? 0.7 : 1} onPress={() => this.props.onPressAction('COMMENT')}>
-                  <Icon name={'textsms'} size={20} style={[styles.newCommentText]}></Icon>
+                  <Icon name={'add'} size={20} style={[styles.newCommentText]}></Icon>
                 </TouchableOpacity>
               </View>
             </View>
