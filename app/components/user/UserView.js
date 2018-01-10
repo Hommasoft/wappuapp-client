@@ -2,8 +2,9 @@
 
 import React, { Component } from 'react';
 import { View, StyleSheet, Dimensions, TouchableOpacity,
-  TouchableHighlight, Image, Platform, Text } from 'react-native';
+  TouchableHighlight, Image, Platform, Text, Modal, TextInput, Button } from 'react-native';
 import { connect } from 'react-redux';
+import autobind from 'autobind-decorator';
 
 import {
   getUserImages,
@@ -29,6 +30,11 @@ const { height, width } = Dimensions.get('window');
 const isIOS = Platform.OS === 'ios';
 
 class UserView extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { pushCounter: 0, loginVisible: false, email: '', password: ''};
+  }
+
   componentDidMount() {
     const { user } = this.props.route;
     const { userId } = this.props;
@@ -38,6 +44,39 @@ class UserView extends Component {
     } else {
       this.props.fetchUserImages(userId);
     }
+  }
+
+  showAdminLogin() {
+    if (this.props.route.isMe) {
+      this.setState({pushCounter: this.state.pushCounter + 1});
+      if (this.state.pushCounter === 10) {
+        this.setState({loginVisible: true});
+        this.setState({pushCounter: 0});
+      }
+    }
+  }
+
+  @autobind
+  onChangeEmail(text) {
+    this.setState({email: text});
+  }
+
+  @autobind
+  onChangePassword(text) {
+    this.setState({password: text});
+  }
+
+  @autobind
+  onCancel() {
+    //this.setState({text: ''});
+    this.setState({loginVisible: false});
+    this.setState({email: ''});
+    this.setState({password: ''});
+  }
+
+  @autobind
+  onLogin() {
+
   }
 
   render() {
@@ -55,6 +94,60 @@ class UserView extends Component {
 
     return (
       <View style={{ flex: 1 }}>
+
+      <View style={{ backgroundColor:theme.secondary }}>
+        <Modal
+          onRequestClose={this.onCancel}
+          visible={this.state.loginVisible}
+          animationType={'slide'}>
+          <View style={styles.info}>
+            <Text style={styles.infoText}>Login as moderator</Text>
+          </View>
+          <View style={styles.inputContainer}>
+            <TextInput
+              autoFocus={false}
+              multiline={false}
+              clearButtonMode={'while-editing'}
+              returnKeyType={'send'}
+              blurOnSubmit={true}
+              style={styles.inputField}
+              onChangeText={this.onChangeEmail}
+              numberOfLines={1}
+              maxLength={99}
+              placeholderTextColor={'#000'}
+              placeholder="Email"
+              value={this.state.email}/>
+            <TextInput
+              secureTextEntry={true}
+              autoFocus={false}
+              multiline={false}
+              clearButtonMode={'while-editing'}
+              returnKeyType={'send'}
+              blurOnSubmit={true}
+              style={styles.inputField}
+              onChangeText={this.onChangePassword}
+              numberOfLines={1}
+              maxLength={99}
+              placeholderTextColor={'#000'}
+              placeholder="Password"
+              value={this.state.password} />
+          </View>
+
+          <View style={styles.buttons}>
+            <Button
+              onPress={this.onCancel}
+              style={styles.cancelButton}
+              title={"Cancel"}>
+            </Button>
+            <Button
+              onPress={this.onLogin}
+              style={styles.loginButton}
+              title={"Login"}>
+            </Button>
+          </View>
+        </Modal>
+      </View>
+
       {false && <Header backgroundColor={theme.secondary} title={user.name} navigator={navigator} />}
       <ParallaxView
         backgroundSource={headerImage}
@@ -72,7 +165,7 @@ class UserView extends Component {
             <View style={styles.avatar}>
               <Icon style={styles.avatarText} name="person-outline" />
             </View>
-            <Text style={styles.headerTitle}>
+            <Text style={styles.headerTitle} onPress={() => this.showAdminLogin()}>
               {user.name}
             </Text>
             <Text style={styles.headerSubTitle}>
@@ -233,6 +326,45 @@ const styles = StyleSheet.create({
   imageTitleWrap: {
     flex: 1,
     marginTop: 0
+  },
+  buttons:{
+    flexDirection: 'row',
+    justifyContent: 'center',
+    padding: 20,
+    paddingBottom: 0,
+    paddingLeft: 20,
+    paddingRight: 20,
+  },
+  loginButton: {
+    flex: 1,
+    marginLeft: 10,
+  },
+  cancelButton: {
+    flex: 1,
+    marginRight: 10,
+  },
+  inputContainer: {
+    marginTop: 10
+  },
+  inputField: {
+    fontSize: 16,
+    margin: 0,
+    marginLeft: 40,
+    marginTop: 30,
+    color:'#000',
+    textAlign: 'center',
+    height: 30,
+    width: width - 80,
+    borderRadius: 8,
+    backgroundColor: '#ddd'
+  },
+  info: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 110
+  },
+  infoText: {
+    fontSize: 22,
   },
 });
 

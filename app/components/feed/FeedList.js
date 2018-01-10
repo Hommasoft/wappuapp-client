@@ -205,6 +205,7 @@ class FeedList extends Component {
       this.props.navigator.push({
         component: UserView,
         name: `${user.name}`,
+        isMe: false,
         user
       });
     }
