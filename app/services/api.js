@@ -43,6 +43,11 @@ const postAction = (params, location, queryParams) => {
   return _post(Endpoints.urls.action, payload, queryParams);
 };
 
+const postLogin = payload => {
+  return _post(Endpoints.urls.login, payload, '')
+  .then(response => response.json());
+};
+
 const putMood = (params) => {
   let payload = Object.assign({}, params, { user: DeviceInfo.getUniqueID() });
 
@@ -198,6 +203,7 @@ export default {
   fetchModels,
   fetchMoreFeed,
   postAction,
+  postLogin,
   putUser,
   putMood,
   getUser,

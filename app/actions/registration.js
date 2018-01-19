@@ -14,9 +14,16 @@ const {
   GET_USER_SUCCESS,
   GET_USER_FAILURE
 } = createRequestActionTypes('GET_USER');
+const {
+  LOGIN_REQUEST,
+  LOGIN_SUCCESS,
+  LOGIN_FAILURE
+} = createRequestActionTypes('LOGIN');
 
 const OPEN_REGISTRATION_VIEW = 'OPEN_REGISTRATION_VIEW';
 const CLOSE_REGISTRATION_VIEW = 'CLOSE_REGISTRATION_VIEW';
+const OPEN_LOGIN_VIEW = 'OPEN_LOGIN_VIEW';
+const CLOSE_LOGIN_VIEW = 'CLOSE_LOGIN_VIEW';
 const UPDATE_NAME = 'UPDATE_NAME';
 const RESET = 'RESET';
 const SELECT_TEAM = 'SELECT_TEAM';
@@ -99,6 +106,27 @@ const getUser = () => {
   };
 };
 
+const loginModerator = (email, password) => {
+  return dispatch => {
+    dispatch({ type: LOGIN_REQUEST });
+    return api.postLogin({ email: email, password: password })
+      .then(response => {
+        dispatch({ type: LOGIN_SUCCESS, payload: response });
+      })
+      .catch(error => {
+        dispatch({ type: LOGIN_FAILURE});
+      });
+  };
+};
+
+const openLoginView = () => {
+  return { type: OPEN_LOGIN_VIEW };
+};
+
+const closeLoginView = () => {
+  return { type: CLOSE_LOGIN_VIEW };
+};
+
 export {
   CREATE_USER_REQUEST,
   CREATE_USER_SUCCESS,
@@ -109,6 +137,11 @@ export {
   GET_USER_REQUEST,
   GET_USER_SUCCESS,
   GET_USER_FAILURE,
+  LOGIN_REQUEST,
+  LOGIN_SUCCESS,
+  LOGIN_FAILURE,
+  OPEN_LOGIN_VIEW,
+  CLOSE_LOGIN_VIEW,
   SELECT_TEAM,
   RESET,
   DISMISS_INTRODUCTION,
@@ -120,5 +153,8 @@ export {
   getUser,
   selectTeam,
   reset,
-  dismissIntroduction
+  dismissIntroduction,
+  loginModerator,
+  openLoginView,
+  closeLoginView
 };

@@ -2,9 +2,8 @@
 
 import React, { Component } from 'react';
 import { View, StyleSheet, Dimensions, TouchableOpacity,
-  TouchableHighlight, Image, Platform, Text, Modal, TextInput, Button } from 'react-native';
+  TouchableHighlight, Image, Platform, Text, } from 'react-native';
 import { connect } from 'react-redux';
-import autobind from 'autobind-decorator';
 
 import {
   getUserImages,
@@ -16,6 +15,8 @@ import {
 } from '../../concepts/user';
 import { getUserName, getUserId } from '../../reducers/registration';
 import { openLightBox } from '../../actions/feed';
+import { openLoginView } from '../../actions/registration';
+import  LoginView  from './LoginView';
 
 import ParallaxView from 'react-native-parallax-view';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -32,7 +33,7 @@ const isIOS = Platform.OS === 'ios';
 class UserView extends Component {
   constructor(props) {
     super(props);
-    this.state = { pushCounter: 0, loginVisible: false, email: '', password: ''};
+    this.state = { pushCounter: 0 };
   }
 
   componentDidMount() {
@@ -47,36 +48,13 @@ class UserView extends Component {
   }
 
   showAdminLogin() {
-    if (this.props.route.isMe) {
+    if (this.props.route.isMe) {  // Only show login screen from profile opened from links tab
       this.setState({pushCounter: this.state.pushCounter + 1});
       if (this.state.pushCounter === 10) {
-        this.setState({loginVisible: true});
         this.setState({pushCounter: 0});
+        this.props.openLoginView();
       }
     }
-  }
-
-  @autobind
-  onChangeEmail(text) {
-    this.setState({email: text});
-  }
-
-  @autobind
-  onChangePassword(text) {
-    this.setState({password: text});
-  }
-
-  @autobind
-  onCancel() {
-    //this.setState({text: ''});
-    this.setState({loginVisible: false});
-    this.setState({email: ''});
-    this.setState({password: ''});
-  }
-
-  @autobind
-  onLogin() {
-
   }
 
   render() {
@@ -95,58 +73,7 @@ class UserView extends Component {
     return (
       <View style={{ flex: 1 }}>
 
-      <View style={{ backgroundColor:theme.secondary }}>
-        <Modal
-          onRequestClose={this.onCancel}
-          visible={this.state.loginVisible}
-          animationType={'slide'}>
-          <View style={styles.info}>
-            <Text style={styles.infoText}>Login as moderator</Text>
-          </View>
-          <View style={styles.inputContainer}>
-            <TextInput
-              autoFocus={false}
-              multiline={false}
-              clearButtonMode={'while-editing'}
-              returnKeyType={'send'}
-              blurOnSubmit={true}
-              style={styles.inputField}
-              onChangeText={this.onChangeEmail}
-              numberOfLines={1}
-              maxLength={99}
-              placeholderTextColor={'#000'}
-              placeholder="Email"
-              value={this.state.email}/>
-            <TextInput
-              secureTextEntry={true}
-              autoFocus={false}
-              multiline={false}
-              clearButtonMode={'while-editing'}
-              returnKeyType={'send'}
-              blurOnSubmit={true}
-              style={styles.inputField}
-              onChangeText={this.onChangePassword}
-              numberOfLines={1}
-              maxLength={99}
-              placeholderTextColor={'#000'}
-              placeholder="Password"
-              value={this.state.password} />
-          </View>
-
-          <View style={styles.buttons}>
-            <Button
-              onPress={this.onCancel}
-              style={styles.cancelButton}
-              title={"Cancel"}>
-            </Button>
-            <Button
-              onPress={this.onLogin}
-              style={styles.loginButton}
-              title={"Login"}>
-            </Button>
-          </View>
-        </Modal>
-      </View>
+      <LoginView></LoginView>
 
       {false && <Header backgroundColor={theme.secondary} title={user.name} navigator={navigator} />}
       <ParallaxView
@@ -219,7 +146,6 @@ class UserView extends Component {
     );
   }
 };
-
 
 
 const styles = StyleSheet.create({
@@ -327,49 +253,9 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: 0
   },
-  buttons:{
-    flexDirection: 'row',
-    justifyContent: 'center',
-    padding: 20,
-    paddingBottom: 0,
-    paddingLeft: 20,
-    paddingRight: 20,
-  },
-  loginButton: {
-    flex: 1,
-    marginLeft: 10,
-  },
-  cancelButton: {
-    flex: 1,
-    marginRight: 10,
-  },
-  inputContainer: {
-    marginTop: 10
-  },
-  inputField: {
-    fontSize: 16,
-    margin: 0,
-    marginLeft: 40,
-    marginTop: 30,
-    color:'#000',
-    textAlign: 'center',
-    height: 30,
-    width: width - 80,
-    borderRadius: 8,
-    backgroundColor: '#ddd'
-  },
-  info: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 110
-  },
-  infoText: {
-    fontSize: 22,
-  },
 });
 
-
-const mapDispatchToProps = { openLightBox, fetchUserImages };
+const mapDispatchToProps = { openLightBox, fetchUserImages, openLoginView };
 
 const mapStateToProps = state => ({
   images: getUserImages(state),
