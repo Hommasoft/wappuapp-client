@@ -5,7 +5,7 @@ import { View, StyleSheet, Dimensions, Text, Modal, TextInput, Button, ActivityI
 import { connect } from 'react-redux';
 import autobind from 'autobind-decorator';
 
-import {loginModerator, closeLoginView} from '../../actions/registration';
+import { loginModerator, closeLoginView } from '../../actions/registration';
 
 import LoginStates from '../../constants/LoginStates';
 
@@ -21,27 +21,27 @@ class UserView extends Component {
 
   componentWillReceiveProps({ isLoginVisible, loginStatus }) {
     if (isLoginVisible != this.state.isVisible) {
-      this.setState({isVisible: isLoginVisible});
+      this.setState({ isVisible: isLoginVisible });
     }
     if (loginStatus != this.state.status) {
-      this.setState({status: loginStatus});
+      this.setState({ status: loginStatus });
     }
   }
 
   @autobind
   onChangeEmail(text) {
-    this.setState({email: text});
+    this.setState({ email: text });
   }
 
   @autobind
   onChangePassword(text) {
-    this.setState({password: text});
+    this.setState({ password: text });
   }
 
   @autobind
   onCancel() {
-    this.setState({email: ''});
-    this.setState({password: ''});
+    this.setState({ email: '' });
+    this.setState({ password: '' });
     this.props.closeLoginView();
   }
 
@@ -216,6 +216,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
   },
   activity: {
+    marginTop: 0.1 * height,
     paddingBottom: 20,
   },
 });

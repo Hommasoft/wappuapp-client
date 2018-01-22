@@ -2,7 +2,7 @@
 
 import React, { Component } from 'react';
 import { View, StyleSheet, Dimensions, TouchableOpacity,
-  TouchableHighlight, Image, Platform, Text, } from 'react-native';
+  TouchableHighlight, Image, Platform, Text } from 'react-native';
 import { connect } from 'react-redux';
 
 import {
@@ -11,7 +11,7 @@ import {
   getTotalSimas,
   getTotalVotesForUser,
   fetchUserImages,
-  isLoadingUserImages,
+  isLoadingUserImages
 } from '../../concepts/user';
 import { getUserName, getUserId } from '../../reducers/registration';
 import { openLightBox } from '../../actions/feed';
@@ -49,9 +49,9 @@ class UserView extends Component {
 
   showAdminLogin() {
     if (this.props.route.isMe) {  // Only show login screen from profile opened from links tab
-      this.setState({pushCounter: this.state.pushCounter + 1});
+      this.setState({ pushCounter: this.state.pushCounter + 1 });
       if (this.state.pushCounter === 10) {
-        this.setState({pushCounter: 0});
+        this.setState({ pushCounter: 0 });
         this.props.openLoginView();
       }
     }
