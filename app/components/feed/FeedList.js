@@ -21,6 +21,7 @@ import { fetchFeed,
   refreshFeed,
   loadMoreItems,
   removeFeedItem,
+  removeItemAsAdmin,
   voteFeedItem,
   openLightBox
 } from '../../actions/feed';
@@ -291,6 +292,7 @@ class FeedList extends Component {
                 key={item.id}
                 userTeam={this.props.userTeam}
                 removeFeedItem={this.props.removeFeedItem}
+                removeItemAsAdmin={this.props.removeItemAsAdmin}
                 voteFeedItem={this.props.voteFeedItem}
                 isRegistrationInfoValid={this.props.isRegistrationInfoValid}
                 openUserPhotos={this.openUserPhotos}
@@ -348,6 +350,7 @@ const mapDispatchToProps = {
   postAction,
   openTextActionView,
   removeFeedItem,
+  removeItemAsAdmin,
   voteFeedItem,
   openCheckInView,
   openLightBox

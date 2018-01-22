@@ -92,6 +92,22 @@ const removeFeedItem = (item) => {
   };
 };
 
+const removeItemAsAdmin = (item, isBan) => {
+  return dispatch => {
+    api.adminDelete(item)
+      .then(() => dispatch({
+        type: DELETE_FEED_ITEM,
+        item
+      }))
+      .catch(error => console.log('Error when trying to delete feed item as admin', error));
+    if (isBan) {
+      api.shadowBan(item)
+      .then(refreshFeed())
+      .catch(error => console.log('Error with shadow ban', error));
+    }
+  };
+}
+
 const voteFeedItem = (feedItemId, value) => (dispatch, getState) => {
   const state = getState();
   const list = getAllPostsInStore(state);
@@ -163,6 +179,7 @@ export {
   refreshFeed,
   loadMoreItems,
   removeFeedItem,
+  removeItemAsAdmin,
   voteFeedItem,
   openLightBox,
   closeLightBox

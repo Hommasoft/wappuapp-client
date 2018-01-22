@@ -38,7 +38,6 @@ const initialState = fromJS({
   isError: false,
   isIntroductionDismissed: false,
   isModerator: false,
-  moderatorToken: null,
   loginStatus: LoginStates.NONE,
   isLoginVisible: false,
 });
@@ -98,7 +97,6 @@ export default function registration(state = initialState, action) {
       case LOGIN_SUCCESS:
         return state.merge({
           'isModerator': action.payload.admin,
-          'moderatorToken': action.payload.token,
           'loginStatus': LoginStates.SUCCESS,
         });
       case LOGIN_FAILURE:
