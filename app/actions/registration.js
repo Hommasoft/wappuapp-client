@@ -1,8 +1,12 @@
 import DeviceInfo from 'react-native-device-info';
+import { AsyncStorage }  from 'react-native';
 import api from '../services/api';
 import namegen from '../services/namegen';
 import _ from 'lodash';
 import {createRequestActionTypes} from '.';
+
+import { APP_STORAGE_KEY } from '../../env';
+const modKey = `${APP_STORAGE_KEY}:mod`;
 
 const {
   CREATE_USER_REQUEST,
@@ -112,8 +116,10 @@ const loginModerator = (email, password) => {
     return api.postLogin({ email: email, password: password })
       .then(response => {
         dispatch({ type: LOGIN_SUCCESS, payload: response });
+        AsyncStorage.setItem(modKey, JSON.stringify(response));
       })
       .catch(error => {
+        console.log('erroris: ' + error)
         dispatch({ type: LOGIN_FAILURE});
       });
   };
