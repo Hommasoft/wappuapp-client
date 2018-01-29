@@ -432,7 +432,7 @@ class FeedListItem extends Component {
               <View style={styles.commentAmountItemWrapper}>
                 <TouchableOpacity onPress={() => this.toogleComments()}>
                   <Icon name={'mode-comment'} size={26} style={styles.commentIcon}></Icon>
-                  <Text style={styles.IconNumberStyle}>{'0'}</Text>
+                  <Text style={styles.IconNumberStyle}>{item.numberOfComments}</Text>
                 </TouchableOpacity>
               </View>
             </View>
