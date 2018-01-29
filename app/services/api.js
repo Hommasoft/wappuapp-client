@@ -146,14 +146,11 @@ const checkResponseStatus = response => {
   if (response.status >= 200 && response.status < 400) {
     return response;
   } else {
-    return response.json()
-      .then(res => {
-        console.log('Error catched', response.statusText);
-        const error = new Error(response.statusText);
-        error.response = response;
-        error.responseJson = res;
-        throw error;
-      });
+    console.log('Error catched', response.statusText);
+    const error = new Error(response.statusText);
+    error.response = response;
+    error.responseJson = response.json();
+    throw error;
   }
 };
 

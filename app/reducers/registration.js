@@ -16,6 +16,7 @@ import {
   LOGIN_REQUEST,
   LOGIN_SUCCESS,
   LOGIN_FAILURE,
+  LOGOUT,
   OPEN_LOGIN_VIEW,
   CLOSE_LOGIN_VIEW,
   SELECT_TEAM,
@@ -103,6 +104,12 @@ export default function registration(state = initialState, action) {
         return state.set(
           'loginStatus', LoginStates.FAILED
         );
+      // Only removes client flag for UI render, does not remove moderator status of uuid
+      case LOGOUT:
+        return state.merge({
+          'isModerator': false,
+          'loginStatus': LoginStates.NONE
+        });
       case OPEN_LOGIN_VIEW:
         return state.set('isLoginVisible', true);
       case CLOSE_LOGIN_VIEW:

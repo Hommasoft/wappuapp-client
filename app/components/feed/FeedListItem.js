@@ -242,14 +242,14 @@ class FeedListItem extends Component {
       );
     } else if (this.props.isModerator) {
       Alert.alert(
-        'Moderator:',
-        'Do you want to remove this item?',
+        'Moderator options:',
+        'Do you want to hide this item?',
         [
           { text: 'Cancel',
             onPress: () => this.deSelectItem(), style: 'cancel' },
-          { text: 'Delete',
+          { text: 'Shadowban item',
             onPress: () => { this.deSelectItem(); this.removeAsAdmin(false) }, style: 'destructive' },
-          { text: 'Delete and Shadowban user',
+          { text: 'Shadowban item and user',
             onPress: () => { this.deSelectItem(); this.removeAsAdmin(true) }, style: 'destructive' }
         ]
       );

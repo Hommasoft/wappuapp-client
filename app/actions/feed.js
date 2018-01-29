@@ -1,8 +1,16 @@
 import api from '../services/api';
 import {createRequestActionTypes} from '.';
+import { AsyncStorage }  from 'react-native';
 import { getCityId } from '../concepts/city';
 import { getFeedSortType } from '../concepts/sortType';
 import { getAllPostsInStore } from '../reducers/feed';
+
+import * as NotificationMessages from '../utils/notificationMessage';
+import { SHOW_NOTIFICATION, HIDE_NOTIFICATION } from '../actions/competition';
+import { LOGOUT} from '../actions/registration';
+
+import { APP_STORAGE_KEY } from '../../env';
+const modKey = `${APP_STORAGE_KEY}:mod`;
 
 const SET_FEED = 'SET_FEED';
 const APPEND_FEED = 'APPEND_FEED';
@@ -99,10 +107,33 @@ const removeItemAsAdmin = (item, isBan) => {
         type: DELETE_FEED_ITEM,
         item
       }))
-      .catch(error => console.log('Error when trying to delete feed item as admin', error));
+      .catch(error => {
+        console.log('Error when trying to delete feed item as admin', error);
+        if (error.response.status == '401') {
+          dispatch({
+            type: SHOW_NOTIFICATION,
+            payload: NotificationMessages.getUnauthorizedMessage()
+          });
+          // Change UI render to normal so it is possible to login again
+          dispatch({ type: LOGOUT });
+          AsyncStorage.setItem(modKey, '');
+        } else if (error.response.status == '404') {
+          dispatch({
+            type: SHOW_NOTIFICATION,
+            payload: NotificationMessages.getUnableToFindMessage()
+          });
+        } else {
+          dispatch({
+            type: SHOW_NOTIFICATION,
+            payload: NotificationMessages.getErrorMessage()
+          });
+        }
+        setTimeout(() => {
+          dispatch({ type: HIDE_NOTIFICATION });
+        }, 6000);
+      });
     if (isBan) {
       api.shadowBan(item)
-      .then(refreshFeed())
       .catch(error => console.log('Error with shadow ban', error));
     }
   };
