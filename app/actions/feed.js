@@ -37,6 +37,7 @@ const {
 
 
 const fetchFeed = () => (dispatch, getState) => {
+  dispatch(closedComments());
   const cityId = getCityId(getState());
   const sort = getFeedSortType(getState());
 
@@ -58,6 +59,7 @@ const fetchFeed = () => (dispatch, getState) => {
 };
 
 const refreshFeed = () => (dispatch, getState) => {
+  dispatch(closedComments());
   dispatch({ type: REFRESH_FEED_REQUEST });
 
   const cityId = getCityId(getState());
@@ -75,8 +77,8 @@ const refreshFeed = () => (dispatch, getState) => {
 };
 
 const loadMoreItems = (lastID) => (dispatch, getState) => {
-  dispatch({ type: REFRESH_FEED_REQUEST });
-
+  //dispatch({ type: REFRESH_FEED_REQUEST });
+  //dispatch(closedComments());
   const cityId = getCityId(getState());
   const sort = getFeedSortType(getState());
   return api.fetchMoreFeed(lastID, { cityId, sort })
@@ -85,18 +87,20 @@ const loadMoreItems = (lastID) => (dispatch, getState) => {
       type: APPEND_FEED,
       feed: items
     });
-    dispatch({ type: REFRESH_FEED_SUCCESS });
+    //dispatch({ type: REFRESH_FEED_SUCCESS });
     dispatch({ type: GET_FEED_SUCCESS });
   })
-  .catch(error => dispatch({ type: REFRESH_FEED_SUCCESS }));
+  //.catch(error => dispatch({ type: REFRESH_FEED_SUCCESS }));
 };
 
 const loadComments = (parent_id, offset) => (dispatch, getState) => {
-  dispatch({
-    type: LOAD_COMMENTS_REQUEST,
-    parentId: parent_id
-   });
-
+  // Don't change state when there are old comments in the feed to prevent feed from jumping
+  if (offset == 0) {
+    dispatch({
+      type: LOAD_COMMENTS_REQUEST,
+      parentId: parent_id
+     });
+  }
   return api.fetchComments(parent_id, offset, {})
   .then(items => {
     if (offset > 0) {
@@ -179,6 +183,11 @@ const closeLightBox = () => {
   return { type: CLOSE_LIGHTBOX };
 };
 
+const COMMENTS_CLOSED = 'COMMENTS_CLOSED';
+const closedComments = () => {
+  return { type: COMMENTS_CLOSED };
+}
+
 export {
   SET_FEED,
   APPEND_FEED,
@@ -197,6 +206,7 @@ export {
   DELETE_FEED_ITEM,
   OPEN_LIGHTBOX,
   CLOSE_LIGHTBOX,
+  COMMENTS_CLOSED,
 
   fetchFeed,
   refreshFeed,
@@ -205,5 +215,6 @@ export {
   removeFeedItem,
   voteFeedItem,
   openLightBox,
-  closeLightBox
+  closeLightBox,
+  closedComments
 };

@@ -23,7 +23,7 @@ import theme from '../../style/theme';
 import { openRegistrationView } from '../../actions/registration';
 import VotePanel from './VotePanel';
 import CommentView from './CommentView';
-import { loadComments } from '../../actions/feed';
+import { loadComments, closedComments } from '../../actions/feed';
 
 const { width } = Dimensions.get('window');
 const FEED_ITEM_MARGIN_DISTANCE = 0;
@@ -275,7 +275,7 @@ class FeedListItem extends Component {
 
   toogleComments() {
     if (this.state.commentsVisible) {
-      this.setState({ commentsVisible: false });
+      this.props.closedComments();
     }
     else {
       this.props.loadComments(this.props.item.id, 0);
@@ -464,6 +464,6 @@ const select = store => {
     openCommentId: store.feed.get('openCommentId')
   };
 };
-const mapDispatchToProps = { openRegistrationView, loadComments };
+const mapDispatchToProps = { openRegistrationView, loadComments, closedComments };
 
 export default connect(select, mapDispatchToProps)(FeedListItem);

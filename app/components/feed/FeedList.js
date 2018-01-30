@@ -22,7 +22,8 @@ import { fetchFeed,
   loadMoreItems,
   removeFeedItem,
   voteFeedItem,
-  openLightBox
+  openLightBox,
+  closedComments
 } from '../../actions/feed';
 
 import { openRegistrationView } from '../../actions/registration';
@@ -84,25 +85,32 @@ class FeedList extends Component {
       showScrollTopButton: false,
       listAnimation: new Animated.Value(0),
       dataSource: new ListView.DataSource({ rowHasChanged: (row1, row2) => row1 !== row2 }),
-      editableImage: null
+      editableImage: null,
+      stdHeight: null,
+      feedSizeChanged: false
     };
   }
+
+  scrollPos: 0
+  showActionButtons: true
 
   componentDidMount() {
     this.props.fetchFeed();
 
     this.props.updateCooldowns();
+
   }
 
   // componentWillUnmount() {
   //   //this.clearInterval(this.updateCooldownInterval);
   // }
 
-  componentWillReceiveProps({ feed, feedListState, }) {
+  componentWillReceiveProps({ feed, feedListState, openCommentId }) {
     if (feed !== this.props.feed) {
       this.setState({
         dataSource: this.state.dataSource.cloneWithRows(feed.toJS())
       });
+      this.setState({feedSizeChanged: true});
     }
 
     // Scroll to top when user does an action
@@ -113,6 +121,19 @@ class FeedList extends Component {
     if (this.props.feedListState !== LoadingStates.READY && feedListState === LoadingStates.READY) {
       this.animateList();
     }
+
+    // Set feed position correctly when user opens comment chain while there is one open above
+    if (openCommentId && openCommentId < this.props.openCommentId) {
+      const newHeight = this.refs._scrollView.getMetrics().contentLength;
+      const diff = newHeight - this.state.stdHeight;
+      this.refs._scrollView.scrollTo({y: (this.scrollPos - diff), animated: false});
+    } else if (this.state.feedSizeChanged && !this.props.openCommentId && openCommentId !== this.props.openCommentId) {
+      // Set stdHeight everytime you open comment and feed has changed
+      const newHeight = this.refs._scrollView.getMetrics().contentLength;
+      this.setState({stdHeight: newHeight});
+      this.setState({feedSizeChanged: false});
+    }
+
   }
 
   animateList() {
@@ -129,9 +150,6 @@ class FeedList extends Component {
      this.refs._scrollView.scrollTo({x: 0, y: 0, animated: true});
     }
   }
-
-  scrollPos: 0
-  showActionButtons: true
 
   @autobind
   _onScroll(event) {
@@ -361,7 +379,8 @@ const mapDispatchToProps = {
   voteFeedItem,
   openCheckInView,
   openLightBox,
-  openRegistrationView
+  openRegistrationView,
+  closedComments
 };
 
 const select = store => {

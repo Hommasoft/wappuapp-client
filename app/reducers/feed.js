@@ -19,7 +19,8 @@ import {
   DELETE_FEED_ITEM,
   OPEN_LIGHTBOX,
   VOTE_FEED_ITEM_REQUEST,
-  CLOSE_LIGHTBOX
+  CLOSE_LIGHTBOX,
+  COMMENTS_CLOSED
 } from '../actions/feed';
 import { getUserImages } from '../concepts/user';
 import { getEventImages } from './event';
@@ -89,7 +90,7 @@ export default function feed(state = initialState, action) {
         state;
     case LOAD_COMMENTS_REQUEST:
       return state.merge({
-        'commentState': LoadingStates.LOADING,
+        //'commentState': LoadingStates.LOADING,
         'openCommentId': action.parentId
       });
     case LOAD_COMMENTS_SUCCESS:
@@ -132,6 +133,13 @@ export default function feed(state = initialState, action) {
         isLightBoxOpen: false,
         lightBoxItemId: null,
       })
+
+    case COMMENTS_CLOSED:
+      return state.merge({
+        openCommentId: null,
+        commentState: LoadingStates.NONE,
+        comments: []
+      });
 
     default:
       return state;
