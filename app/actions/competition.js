@@ -4,7 +4,7 @@ import { isNil } from 'lodash';
 import api from '../services/api';
 import ActionTypes from '../constants/ActionTypes';
 import * as NotificationMessages from '../utils/notificationMessage';
-import { refreshFeed } from './feed';
+import { refreshFeed, loadComments } from './feed';
 import { sortFeedChronological } from '../concepts/sortType';
 import { getCityId } from '../concepts/city';
 import {createRequestActionTypes} from '.';
@@ -54,7 +54,7 @@ const closeCheckInView = () => {
   return { type: CLOSE_CHECKIN_VIEW };
 };
 
-const _postAction = (payload) => {
+const _postAction = (payload, isComment, offset) => {
   return (dispatch, getState) => {
     dispatch({ type: POST_ACTION_REQUEST });
 
@@ -67,7 +67,10 @@ const _postAction = (payload) => {
          setTimeout(() => {
 
             // Set feed sort to 'new' if posted image or text, otherwise just refresh
-            if ([ActionTypes.TEXT, ActionTypes.IMAGE].indexOf(payload.type) >= 0) {
+            // If posted comment, don't do anything
+            if (isComment) {
+              dispatch(loadComments(payload.parent_id, offset));
+            } else if ([ActionTypes.TEXT, ActionTypes.IMAGE].indexOf(payload.type) >= 0) {
               dispatch(sortFeedChronological())
             } else {
               dispatch(refreshFeed());
@@ -123,12 +126,12 @@ const postText = text => {
   });
 };
 
-const postComment = (text, parentId) => {
+const postComment = (text, parentId, offset) => {
   return _postAction({
     type: ActionTypes.TEXT,
     text: text,
     parent_id: parentId
-  })
+  }, true, offset)
 };
 
 const postImage = (image, imageText, imageTextPosition) => {

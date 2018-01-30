@@ -73,7 +73,7 @@ class CommentActionView extends Component {
 
     this.showOK()
     setTimeout(() => {
-      this.props.dispatch(CompetitionActions.postComment(this.state.text, this.props.parentId));
+      this.props.dispatch(CompetitionActions.postComment(this.state.text, this.props.parentId, this.props.offset));
       this.setState({text: ''});
       this.props.dispatch(CompetitionActions.closeCommentActionView());
 
@@ -296,7 +296,8 @@ const styles = StyleSheet.create({
 const select = store => {
   return {
     isCommentActionViewOpen: store.competition.get('isCommentActionViewOpen'),
-    parentId: store.competition.get('parentId')
+    parentId: store.competition.get('parentId'),
+    offset: store.feed.get('comments').toJS().length
   };
 };
 
