@@ -11,7 +11,7 @@ import {
   Platform,
   PropTypes,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-end",
     flexDirection: 'row'
   },
-  commentListStyle: {
+  commentListWrapper: {
     backgroundColor: theme.lightgrey,
     flexDirection: 'column',
   },
@@ -242,12 +242,12 @@ class FeedListItem extends Component {
   }
 
   componentWillReceiveProps({ commentList, openCommentId }) {
-
+    // Hide comments if other comments are opened
     if (openCommentId !== this.props.item.id) {
       this.setState({ commentsVisible: false });
     }
     else {
-      //this.setState({ commentsVisible: true });
+      this.setState({ commentsVisible: true });
     }
   }
 
@@ -278,8 +278,7 @@ class FeedListItem extends Component {
       this.setState({ commentsVisible: false });
     }
     else {
-      this.setState({ commentsVisible: true });
-      this.props.loadComments(this.props.item.id);
+      this.props.loadComments(this.props.item.id, 0);
     }
   }
 
@@ -435,18 +434,21 @@ class FeedListItem extends Component {
                   <Text style={styles.IconNumberStyle}>{item.numberOfComments}</Text>
                 </TouchableOpacity>
               </View>
+
             </View>
           </View>
         </TouchableOpacity>
         {this.state.commentsVisible ?
-          <View style={styles.commentListStyle}>
+          <View style={styles.commentListWrapper}>
             <CommentView
-              key={this.props.key}
+              parentId={this.props.item.id}
               commentList={this.props.commentList}
               commentListState={this.props.commentListState}
+              commentCount={item.numberOfComments}
+              loadComments={this.props.loadComments}
               onPressAction={this.props.onPressAction}
               openUserPhotos={this.props.openUserPhotos}
-            />
+              openRegistrationView={this.props.openRegistrationView}/>
           </View>
           : <View></View>
         }

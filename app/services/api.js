@@ -31,8 +31,8 @@ const fetchMoreFeed = (beforeId, params) => {
   return cachedFetch(url);
 };
 
-const fetchComments = (parent_id, params) => {
-  const extendedParams = Object.assign({ parent_id, limit: 20 }, params);
+const fetchComments = (parent_id, offset, params) => {
+  const extendedParams = Object.assign({ parent_id, offset, limit: 10 }, params);
 
   let url = Endpoints.urls.feed;
   url += '?' + Object.keys(extendedParams).map(k => {

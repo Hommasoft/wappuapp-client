@@ -11,6 +11,7 @@ import {
   GET_FEED_FAILURE,
   REFRESH_FEED_REQUEST,
   REFRESH_FEED_SUCCESS,
+  SET_COMMENTS,
   APPEND_COMMENTS,
   LOAD_COMMENTS_REQUEST,
   LOAD_COMMENTS_SUCCESS,
@@ -27,7 +28,6 @@ import LoadingStates from '../constants/LoadingStates';
 // # Selectors
 export const getFeed = state => state.feed.get('list') || Immutable.List([]);
 export const getLightBoxItemId = state => state.feed.get('lightBoxItemId', null);
-export const getComments = state => state.feed.get('comments') || Immutable.List([]);
 
 export const getAllPostsInStore = createSelector(
   getFeed, getUserImages, getEventImages,
@@ -51,7 +51,7 @@ export const getLightboxItem = createSelector(
 const initialState = Immutable.fromJS({
   list: [],
   comments: [], // Open comments in the client
-  openCommentId: null,  // Parent_Id of the open comments
+  openCommentId: null,  // parentId of the open comments
   listState: LoadingStates.NONE,
   commentState: LoadingStates.NONE,
   isRefreshing: false,
@@ -80,10 +80,18 @@ export default function feed(state = initialState, action) {
       return state.set('isRefreshing', true);
     case REFRESH_FEED_SUCCESS:
       return state.set('isRefreshing', false);
-    case APPEND_COMMENTS:
+    case SET_COMMENTS:
       return state.set('comments', Immutable.fromJS(action.comment));
+    case APPEND_COMMENTS:
+      return (action.comment && action.comment.length) ?
+        state.set('comments', Immutable.fromJS(state.get('comments')
+          .concat(Immutable.fromJS(action.comment)))) :
+        state;
     case LOAD_COMMENTS_REQUEST:
-      return state.set('commentState', LoadingStates.LOADING).set('openCommentId', action.parentId);
+      return state.merge({
+        'commentState': LoadingStates.LOADING,
+        'openCommentId': action.parentId
+      });
     case LOAD_COMMENTS_SUCCESS:
       return state.set('commentState', LoadingStates.READY);
     case LOAD_COMMENTS_FAILURE:

@@ -19,7 +19,9 @@ const {
   // REFRESH_FEED_FAILURE
 } = createRequestActionTypes('REFRESH_FEED');
 
+const SET_COMMENTS = 'SET_COMMENTS';
 const APPEND_COMMENTS = 'APPEND_COMMENTS';
+
 const {
   LOAD_COMMENTS_REQUEST,
   LOAD_COMMENTS_SUCCESS,
@@ -89,23 +91,28 @@ const loadMoreItems = (lastID) => (dispatch, getState) => {
   .catch(error => dispatch({ type: REFRESH_FEED_SUCCESS }));
 };
 
-const loadComments = (parent_id) => (dispatch, getState) => {
-
+const loadComments = (parent_id, offset) => (dispatch, getState) => {
   dispatch({
     type: LOAD_COMMENTS_REQUEST,
     parentId: parent_id
    });
 
-  return api.fetchComments(parent_id, {})
+  return api.fetchComments(parent_id, offset, {})
   .then(items => {
-    dispatch({
-      type: APPEND_COMMENTS,
-      comment: items,
-    });
+    if (offset > 0) {
+      dispatch({
+        type: APPEND_COMMENTS,
+        comment: items
+      });
+    } else {
+      dispatch({
+        type: SET_COMMENTS,
+        comment: items
+      });
+    }
     dispatch({ type: LOAD_COMMENTS_SUCCESS });
   })
   .catch(error => dispatch({ type: LOAD_COMMENTS_FAILURE }));
-
 };
 
 const removeFeedItem = (item) => {
@@ -182,6 +189,7 @@ export {
   GET_FEED_FAILURE,
   REFRESH_FEED_REQUEST,
   REFRESH_FEED_SUCCESS,
+  SET_COMMENTS,
   APPEND_COMMENTS,
   LOAD_COMMENTS_REQUEST,
   LOAD_COMMENTS_SUCCESS,
