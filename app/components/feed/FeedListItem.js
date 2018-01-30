@@ -447,8 +447,7 @@ class FeedListItem extends Component {
               commentCount={item.numberOfComments}
               loadComments={this.props.loadComments}
               onPressAction={this.props.onPressAction}
-              openUserPhotos={this.props.openUserPhotos}
-              openRegistrationView={this.props.openRegistrationView}/>
+              openUserPhotos={this.props.openUserPhotos}/>
           </View>
           : <View></View>
         }

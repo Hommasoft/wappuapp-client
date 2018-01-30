@@ -25,6 +25,7 @@ import { fetchFeed,
   openLightBox
 } from '../../actions/feed';
 
+import { openRegistrationView } from '../../actions/registration';
 import { getUserTeam } from '../../reducers/registration';
 import permissions from '../../services/android-permissions';
 
@@ -251,7 +252,11 @@ class FeedList extends Component {
       case 'CHECK_IN_EVENT':
         return this.props.openCheckInView();
       case 'COMMENT':
+      if (this.props.isRegistrationInfoValid === false) {
+        this.props.openRegistrationView();
+      } else {
         return this.props.openCommentActionView(this.props.openCommentId);
+      }
       default:
         return this.props.postAction(type);
     }
@@ -355,7 +360,8 @@ const mapDispatchToProps = {
   removeFeedItem,
   voteFeedItem,
   openCheckInView,
-  openLightBox
+  openLightBox,
+  openRegistrationView
 };
 
 const select = store => {
