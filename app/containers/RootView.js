@@ -1,7 +1,7 @@
 'use strict';
 
 import React, { Component } from 'react';
-import { Platform, StatusBar } from 'react-native';
+import { Platform, StatusBar, AsyncStorage } from 'react-native';
 import { createStore, applyMiddleware, combineReducers } from 'redux';
 import { Provider } from 'react-redux';
 import thunk from 'redux-thunk';
@@ -16,8 +16,11 @@ import { initializeUsersCity, fetchCities } from '../concepts/city';
 import { initializeUsersRadio, fetchRadioStations } from '../concepts/radio';
 import permissions from '../services/android-permissions';
 
-const IOS = Platform.OS === 'ios';
+import { APP_STORAGE_KEY } from '../../env';
+import { LOGIN_SUCCESS } from '../actions/registration';
+const modKey = `${APP_STORAGE_KEY}:mod`;
 
+const IOS = Platform.OS === 'ios';
 
 const middlewares = [thunk];
 if (__DEV__) {
@@ -67,6 +70,10 @@ class RootView extends Component {
       StatusBar.setHidden(false)
       StatusBar.setBarStyle('light-content')
     }
+
+    // Check moderator status from local storage
+    this.checkModStatus();
+
   }
 
   componentWillUnmount() {
@@ -97,6 +104,19 @@ class RootView extends Component {
       latitude: position.coords.latitude,
       longitude: position.coords.longitude
     }));
+  }
+
+  checkModStatus() {
+    AsyncStorage.getItem(modKey)
+    .then(data => {
+      const modInfo = data ? JSON.parse(data) : null;
+      if (modInfo.admin) {
+        store.dispatch({
+          type: LOGIN_SUCCESS,
+          payload: modInfo
+        });
+      }
+    });
   }
 
   render() {

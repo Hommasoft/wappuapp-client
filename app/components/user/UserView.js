@@ -11,10 +11,12 @@ import {
   getTotalSimas,
   getTotalVotesForUser,
   fetchUserImages,
-  isLoadingUserImages,
+  isLoadingUserImages
 } from '../../concepts/user';
 import { getUserName, getUserId } from '../../reducers/registration';
 import { openLightBox } from '../../actions/feed';
+import { openLoginView } from '../../actions/registration';
+import  LoginView  from './LoginView';
 
 import ParallaxView from 'react-native-parallax-view';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -29,6 +31,11 @@ const { height, width } = Dimensions.get('window');
 const isIOS = Platform.OS === 'ios';
 
 class UserView extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { pushCounter: 0 };
+  }
+
   componentDidMount() {
     const { user } = this.props.route;
     const { userId } = this.props;
@@ -37,6 +44,16 @@ class UserView extends Component {
       this.props.fetchUserImages(user.id);
     } else {
       this.props.fetchUserImages(userId);
+    }
+  }
+
+  showAdminLogin() {
+    if (this.props.route.isMe) {  // Only show login screen from profile opened from links tab
+      this.setState({ pushCounter: this.state.pushCounter + 1 });
+      if (this.state.pushCounter === 10) {
+        this.setState({ pushCounter: 0 });
+        this.props.openLoginView();
+      }
     }
   }
 
@@ -55,6 +72,9 @@ class UserView extends Component {
 
     return (
       <View style={{ flex: 1 }}>
+
+      <LoginView></LoginView>
+
       {false && <Header backgroundColor={theme.secondary} title={user.name} navigator={navigator} />}
       <ParallaxView
         backgroundSource={headerImage}
@@ -72,7 +92,7 @@ class UserView extends Component {
             <View style={styles.avatar}>
               <Icon style={styles.avatarText} name="person-outline" />
             </View>
-            <Text style={styles.headerTitle}>
+            <Text style={styles.headerTitle} onPress={() => this.showAdminLogin()}>
               {user.name}
             </Text>
             <Text style={styles.headerSubTitle}>
@@ -126,7 +146,6 @@ class UserView extends Component {
     );
   }
 };
-
 
 
 const styles = StyleSheet.create({
@@ -236,8 +255,7 @@ const styles = StyleSheet.create({
   },
 });
 
-
-const mapDispatchToProps = { openLightBox, fetchUserImages };
+const mapDispatchToProps = { openLightBox, fetchUserImages, openLoginView };
 
 const mapStateToProps = state => ({
   images: getUserImages(state),

@@ -32,9 +32,19 @@ const getInvalidEventMessage = (payload) => {
   return 'Hold your horses! No double check-ins!'
 };
 
+const getUnauthorizedMessage = (payload) => {
+  return 'Unauthorized: Try to log in again';
+};
+
+const getUnableToFindMessage = (payload) => {
+  return 'Unable to find item: Item may be already deleted';
+}
+
 export {
   getMessage,
   getErrorMessage,
   getRateLimitMessage,
-  getInvalidEventMessage
+  getInvalidEventMessage,
+  getUnauthorizedMessage,
+  getUnableToFindMessage
 };

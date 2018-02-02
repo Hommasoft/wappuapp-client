@@ -43,6 +43,11 @@ const postAction = (params, location, queryParams) => {
   return _post(Endpoints.urls.action, payload, queryParams);
 };
 
+const postLogin = payload => {
+  return _post(Endpoints.urls.login, payload, '')
+  .then(response => response.json());
+};
+
 const putMood = (params) => {
   let payload = Object.assign({}, params, { user: DeviceInfo.getUniqueID() });
 
@@ -73,6 +78,15 @@ const getUser = uuid => {
 
 const deleteFeedItem = item => {
   return _delete(Endpoints.urls.feedItem(item.id));
+};
+
+const adminDelete = item => {
+  // Delete as admin is put because the item is not really deleted, only hidden
+  return _put(Endpoints.urls.adminFeedItem(item.id));
+};
+
+const shadowBan = item => {
+  return _put(Endpoints.urls.shadowBan(item.author.id));
 };
 
 const voteFeedItem = payload => {
@@ -132,14 +146,11 @@ const checkResponseStatus = response => {
   if (response.status >= 200 && response.status < 400) {
     return response;
   } else {
-    return response.json()
-      .then(res => {
-        console.log('Error catched', response.statusText);
-        const error = new Error(response.statusText);
-        error.response = response;
-        error.responseJson = res;
-        throw error;
-      });
+    console.log('Error catched', response.statusText);
+    const error = new Error(response.statusText);
+    error.response = response;
+    error.responseJson = response.json();
+    throw error;
   }
 };
 
@@ -194,10 +205,13 @@ const queryParametrize = (url, query) => {
 
 export default {
   deleteFeedItem,
+  adminDelete,
+  shadowBan,
   voteFeedItem,
   fetchModels,
   fetchMoreFeed,
   postAction,
+  postLogin,
   putUser,
   putMood,
   getUser,

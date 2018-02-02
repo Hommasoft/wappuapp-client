@@ -240,6 +240,19 @@ class FeedListItem extends Component {
             onPress: () => { this.deSelectItem(); this.removeThisItem() }, style: 'destructive' }
         ]
       );
+    } else if (this.props.isModerator) {
+      Alert.alert(
+        'Moderator options:',
+        'Do you want to hide this item?',
+        [
+          { text: 'Cancel',
+            onPress: () => this.deSelectItem(), style: 'cancel' },
+          { text: 'Shadowban item',
+            onPress: () => { this.deSelectItem(); this.removeAsAdmin(false) }, style: 'destructive' },
+          { text: 'Shadowban item and user',
+            onPress: () => { this.deSelectItem(); this.removeAsAdmin(true) }, style: 'destructive' }
+        ]
+      );
     } else {
       Alert.alert(
         'Flag Content',
@@ -256,6 +269,10 @@ class FeedListItem extends Component {
 
   removeThisItem() {
     this.props.removeFeedItem(this.props.item);
+  }
+
+  removeAsAdmin(isBan) {
+    this.props.removeItemAsAdmin(this.props.item, isBan);
   }
 
   // Render "remove" button, which is remove OR flag button,
@@ -385,6 +402,7 @@ class FeedListItem extends Component {
 const select = store => {
   return {
     actionTypes: store.competition.get('actionTypes'),
+    isModerator: store.registration.get('isModerator')
   };
 };
 const mapDispatchToProps = { openRegistrationView };
