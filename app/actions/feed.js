@@ -35,6 +35,8 @@ const {
   VOTE_FEED_ITEM_SUCCESS,
 } = createRequestActionTypes('VOTE_FEED_ITEM');
 
+const COMMENT_SIZE = 'COMMENT_SIZE';
+
 
 const fetchFeed = () => (dispatch, getState) => {
   dispatch(closedComments());
@@ -77,8 +79,8 @@ const refreshFeed = () => (dispatch, getState) => {
 };
 
 const loadMoreItems = (lastID) => (dispatch, getState) => {
+  // Changing isRefreshing status while loading more feed, makes feed jump abnormaly
   //dispatch({ type: REFRESH_FEED_REQUEST });
-  //dispatch(closedComments());
   const cityId = getCityId(getState());
   const sort = getFeedSortType(getState());
   return api.fetchMoreFeed(lastID, { cityId, sort })
@@ -188,6 +190,10 @@ const closedComments = () => {
   return { type: COMMENTS_CLOSED };
 }
 
+const storeClosedCommentViewSize = (size) => {
+  return { type: COMMENT_SIZE, payload: size }
+}
+
 export {
   SET_FEED,
   APPEND_FEED,
@@ -207,6 +213,7 @@ export {
   OPEN_LIGHTBOX,
   CLOSE_LIGHTBOX,
   COMMENTS_CLOSED,
+  COMMENT_SIZE,
 
   fetchFeed,
   refreshFeed,
@@ -216,5 +223,6 @@ export {
   voteFeedItem,
   openLightBox,
   closeLightBox,
-  closedComments
+  closedComments,
+  storeClosedCommentViewSize
 };

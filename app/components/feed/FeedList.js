@@ -23,7 +23,8 @@ import { fetchFeed,
   removeFeedItem,
   voteFeedItem,
   openLightBox,
-  closedComments
+  closedComments,
+  storeClosedCommentViewSize
 } from '../../actions/feed';
 
 import { openRegistrationView } from '../../actions/registration';
@@ -85,9 +86,7 @@ class FeedList extends Component {
       showScrollTopButton: false,
       listAnimation: new Animated.Value(0),
       dataSource: new ListView.DataSource({ rowHasChanged: (row1, row2) => row1 !== row2 }),
-      editableImage: null,
-      stdHeight: null,
-      feedSizeChanged: false
+      editableImage: null
     };
   }
 
@@ -105,12 +104,11 @@ class FeedList extends Component {
   //   //this.clearInterval(this.updateCooldownInterval);
   // }
 
-  componentWillReceiveProps({ feed, feedListState, openCommentId }) {
+  componentWillReceiveProps({ feed, feedListState, openCommentId, closedCommentsSize }) {
     if (feed !== this.props.feed) {
       this.setState({
         dataSource: this.state.dataSource.cloneWithRows(feed.toJS())
       });
-      this.setState({feedSizeChanged: true});
     }
 
     // Scroll to top when user does an action
@@ -123,15 +121,9 @@ class FeedList extends Component {
     }
 
     // Set feed position correctly when user opens comment chain while there is one open above
-    if (openCommentId && openCommentId < this.props.openCommentId) {
-      const newHeight = this.refs._scrollView.getMetrics().contentLength;
-      const diff = newHeight - this.state.stdHeight;
-      this.refs._scrollView.scrollTo({y: (this.scrollPos - diff), animated: false});
-    } else if (this.state.feedSizeChanged && !this.props.openCommentId && openCommentId !== this.props.openCommentId) {
-      // Set stdHeight everytime you open comment and feed has changed
-      const newHeight = this.refs._scrollView.getMetrics().contentLength;
-      this.setState({stdHeight: newHeight});
-      this.setState({feedSizeChanged: false});
+    if (closedCommentsSize > 0) {
+      this.refs._scrollView.scrollTo({y: (this.scrollPos - closedCommentsSize), animated: false});
+      this.props.storeClosedCommentViewSize(0);
     }
 
   }
@@ -380,7 +372,8 @@ const mapDispatchToProps = {
   openCheckInView,
   openLightBox,
   openRegistrationView,
-  closedComments
+  closedComments,
+  storeClosedCommentViewSize
 };
 
 const select = store => {
@@ -400,7 +393,8 @@ const select = store => {
 
     isRegistrationInfoValid,
     isLoadingUserData: store.registration.get('isLoading'),
-    openCommentId: store.feed.get('openCommentId')
+    openCommentId: store.feed.get('openCommentId'),
+    closedCommentsSize: store.feed.get('closedCommentsSize')
   };
 };
 

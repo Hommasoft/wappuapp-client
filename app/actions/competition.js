@@ -67,7 +67,7 @@ const _postAction = (payload, isComment, offset) => {
          setTimeout(() => {
 
             // Set feed sort to 'new' if posted image or text, otherwise just refresh
-            // If posted comment, don't do anything
+            // If posted comment, load new comments
             if (isComment) {
               dispatch(loadComments(payload.parent_id, offset));
             } else if ([ActionTypes.TEXT, ActionTypes.IMAGE].indexOf(payload.type) >= 0) {

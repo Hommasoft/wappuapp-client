@@ -23,7 +23,7 @@ import theme from '../../style/theme';
 import { openRegistrationView } from '../../actions/registration';
 import VotePanel from './VotePanel';
 import CommentView from './CommentView';
-import { loadComments, closedComments } from '../../actions/feed';
+import { loadComments, closedComments, storeClosedCommentViewSize } from '../../actions/feed';
 
 const { width } = Dimensions.get('window');
 const FEED_ITEM_MARGIN_DISTANCE = 0;
@@ -238,17 +238,26 @@ class FeedListItem extends Component {
   constructor(props) {
     super(props);
     this.state = { selected: false,
-       commentsVisible: false };
+      commentsVisible: false,
+      commentHeight: 0 };
   }
 
   componentWillReceiveProps({ commentList, openCommentId }) {
-    // Hide comments if other comments are opened
-    if (openCommentId !== this.props.item.id) {
+    // Hide/Show comments if other comments are opened
+    if (openCommentId !== parseInt(this.props.item.id)) {
+      // If commentView is closed, store size of it for adjusting feed
+      if (this.state.commentsVisible && (openCommentId !== null) && (openCommentId < this.props.openCommentId)) {
+        this.props.storeClosedCommentViewSize(this.state.commentHeight);
+      }
       this.setState({ commentsVisible: false });
     }
     else {
       this.setState({ commentsVisible: true });
     }
+  }
+
+  calcSize(event) {
+    this.setState({ commentHeight: event.nativeEvent.layout.height });
   }
 
   itemIsCreatedByMe(item) {
@@ -439,7 +448,7 @@ class FeedListItem extends Component {
           </View>
         </TouchableOpacity>
         {this.state.commentsVisible ?
-          <View style={styles.commentListWrapper}>
+          <View style={styles.commentListWrapper} onLayout={(event) => this.calcSize(event)}>
             <CommentView
               parentId={this.props.item.id}
               commentList={this.props.commentList}
@@ -461,9 +470,9 @@ const select = store => {
     actionTypes: store.competition.get('actionTypes'),
     commentList: store.feed.get('comments').toJS(),
     commentListState: store.feed.get('commentState'),
-    openCommentId: store.feed.get('openCommentId')
+    openCommentId: parseInt(store.feed.get('openCommentId'))
   };
 };
-const mapDispatchToProps = { openRegistrationView, loadComments, closedComments };
+const mapDispatchToProps = { openRegistrationView, loadComments, closedComments, storeClosedCommentViewSize };
 
 export default connect(select, mapDispatchToProps)(FeedListItem);

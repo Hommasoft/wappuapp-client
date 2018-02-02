@@ -21,7 +21,7 @@ const fetchModels = (modelType, params) => {
 };
 
 const fetchMoreFeed = (beforeId, params) => {
-  const extendedParams = Object.assign({ beforeId, limit:20}, params);
+  const extendedParams = Object.assign({ beforeId, limit: 20 }, params);
 
   let url = Endpoints.urls.feed;
   url += '?' + Object.keys(extendedParams).map(k => {

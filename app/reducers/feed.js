@@ -20,7 +20,8 @@ import {
   OPEN_LIGHTBOX,
   VOTE_FEED_ITEM_REQUEST,
   CLOSE_LIGHTBOX,
-  COMMENTS_CLOSED
+  COMMENTS_CLOSED,
+  COMMENT_SIZE
 } from '../actions/feed';
 import { getUserImages } from '../concepts/user';
 import { getEventImages } from './event';
@@ -58,7 +59,8 @@ const initialState = Immutable.fromJS({
   isRefreshing: false,
   lightBoxItem: {},
   lightBoxItemId: {},
-  isLightBoxOpen: false
+  isLightBoxOpen: false,
+  closedCommentsSize: 0
 });
 
 export default function feed(state = initialState, action) {
@@ -90,7 +92,7 @@ export default function feed(state = initialState, action) {
         state;
     case LOAD_COMMENTS_REQUEST:
       return state.merge({
-        //'commentState': LoadingStates.LOADING,
+        'commentState': LoadingStates.LOADING,
         'openCommentId': action.parentId
       });
     case LOAD_COMMENTS_SUCCESS:
@@ -132,7 +134,7 @@ export default function feed(state = initialState, action) {
       return state.merge({
         isLightBoxOpen: false,
         lightBoxItemId: null,
-      })
+      });
 
     case COMMENTS_CLOSED:
       return state.merge({
@@ -140,6 +142,9 @@ export default function feed(state = initialState, action) {
         commentState: LoadingStates.NONE,
         comments: []
       });
+
+      case COMMENT_SIZE:
+         return state.set('closedCommentsSize', action.payload);
 
     default:
       return state;
