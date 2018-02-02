@@ -21,6 +21,7 @@ const {
 
 const SET_COMMENTS = 'SET_COMMENTS';
 const APPEND_COMMENTS = 'APPEND_COMMENTS';
+const UPDATE_COMMENT_COUNT = 'UPDATE_COMMENT_COUNT';
 
 const {
   LOAD_COMMENTS_REQUEST,
@@ -116,10 +117,22 @@ const loadComments = (parent_id, offset) => (dispatch, getState) => {
         comment: items
       });
     }
+    dispatch(updateCommentCount(parent_id));
     dispatch({ type: LOAD_COMMENTS_SUCCESS });
   })
   .catch(error => dispatch({ type: LOAD_COMMENTS_FAILURE }));
 };
+
+const updateCommentCount = parent_id => (dispatch, getState) => {
+  return api.refreshCommentCount(parent_id)
+  .then(response => {
+    dispatch({
+      type: UPDATE_COMMENT_COUNT,
+      id: parent_id,
+      value: response
+    });
+  })
+}
 
 const removeFeedItem = (item) => {
   return dispatch => {
@@ -206,6 +219,7 @@ export {
   REFRESH_FEED_SUCCESS,
   SET_COMMENTS,
   APPEND_COMMENTS,
+  UPDATE_COMMENT_COUNT,
   LOAD_COMMENTS_REQUEST,
   LOAD_COMMENTS_SUCCESS,
   LOAD_COMMENTS_FAILURE,
@@ -219,6 +233,7 @@ export {
   refreshFeed,
   loadMoreItems,
   loadComments,
+  updateCommentCount,
   removeFeedItem,
   voteFeedItem,
   openLightBox,

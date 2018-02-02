@@ -13,6 +13,7 @@ import {
   REFRESH_FEED_SUCCESS,
   SET_COMMENTS,
   APPEND_COMMENTS,
+  UPDATE_COMMENT_COUNT,
   LOAD_COMMENTS_REQUEST,
   LOAD_COMMENTS_SUCCESS,
   LOAD_COMMENTS_FAILURE,
@@ -90,6 +91,16 @@ export default function feed(state = initialState, action) {
         state.set('comments', Immutable.fromJS(state.get('comments')
           .concat(Immutable.fromJS(action.comment)))) :
         state;
+    case UPDATE_COMMENT_COUNT:
+      const oList = state.get('list');
+      const iIndex = oList.findIndex((item) => item.get('id') === action.id);
+
+      if (iIndex < 0) {
+        console.log('Cannot find item from state:', iIndex);
+        return state;
+      } else {
+        return state.set('list', oList.setIn([iIndex, 'numberOfComments'], action.value))
+      }
     case LOAD_COMMENTS_REQUEST:
       return state.merge({
         'commentState': LoadingStates.LOADING,

@@ -44,6 +44,12 @@ const fetchComments = (parent_id, offset, params) => {
   .then(response => response.json());
 };
 
+const refreshCommentCount = parent_id => {
+  return wapuFetch(Endpoints.urls.commentCount(parent_id))
+    .then(checkResponseStatus)
+    .then(response => response.json());
+}
+
 const postAction = (params, location, queryParams) => {
   let payload = Object.assign({}, params, { user: DeviceInfo.getUniqueID() });
 
@@ -210,6 +216,7 @@ export default {
   fetchModels,
   fetchMoreFeed,
   fetchComments,
+  refreshCommentCount,
   postAction,
   putUser,
   putMood,
