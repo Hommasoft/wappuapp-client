@@ -200,6 +200,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "flex-start",
     justifyContent: "space-between",
+    paddingTop: 5
   },
   commentAmountItemWrapper: {
     paddingRight: 15,
