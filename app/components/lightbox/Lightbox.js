@@ -15,9 +15,8 @@ import theme from '../../style/theme';
 // import ModalBox from 'react-native-modalbox';
 
 import { openRegistrationView } from '../../actions/registration';
-import { voteFeedItem, removeFeedItem, closeLightBox, removeItemAsAdmin } from '../../actions/feed';
+import { voteFeedItem, removeFeedItem, closeLightBox, removeItemAsAdmin, reportFeedItem } from '../../actions/feed';
 import { getLightboxItem } from '../../reducers/feed';
-import abuse from '../../services/abuse';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import PlatformTouchable from '../common/PlatformTouchable';
@@ -120,7 +119,7 @@ class LightBox extends Component {
           { text: 'Cancel',
             onPress: () =>  {  console.log('Cancel Pressed'); }, style: 'cancel' },
           { text: 'Yes, report item',
-            onPress: () =>  {  abuse.reportFeedItem(item.toJS()); }, style: 'destructive' }
+            onPress: () =>  {  this.props.reportFeedItem(item.toJS()), this.onClose() }, style: 'destructive' }
         ]
       );
     }
@@ -346,6 +345,6 @@ const select = store => {
   };
 };
 
-const mapDispatch = { removeFeedItem, closeLightBox, voteFeedItem, openRegistrationView, removeItemAsAdmin };
+const mapDispatch = { removeFeedItem, closeLightBox, voteFeedItem, openRegistrationView, removeItemAsAdmin, reportFeedItem };
 
 export default connect(select, mapDispatch)(LightBox);

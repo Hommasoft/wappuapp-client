@@ -1,3 +1,5 @@
+import DeviceInfo from 'react-native-device-info';
+
 import api from '../services/api';
 import {createRequestActionTypes} from '.';
 import { AsyncStorage }  from 'react-native';
@@ -11,6 +13,8 @@ import { LOGOUT} from '../actions/registration';
 
 import { APP_STORAGE_KEY } from '../../env';
 const modKey = `${APP_STORAGE_KEY}:mod`;
+
+const USER_UUID = DeviceInfo.getUniqueID();
 
 const SET_FEED = 'SET_FEED';
 const APPEND_FEED = 'APPEND_FEED';
@@ -99,6 +103,24 @@ const removeFeedItem = (item) => {
       .catch(error => console.log('Error when trying to delete feed item', error));
   };
 };
+
+const reportFeedItem = (item) => {
+  const body = {
+    feedItemId: item.id,
+    reportCreatorUuid: USER_UUID,
+    reportDescription: 'Reported' // Currently no UI to give description
+  }
+  return dispatch => {
+    api.reportItem(body)
+      .then(() => {
+        dispatch({ type: SHOW_NOTIFICATION, payload: NotificationMessages.getReportMessage() });
+        setTimeout(() => {
+          dispatch({ type: HIDE_NOTIFICATION });
+          }, 3000);
+      })
+      .catch(error => console.log('Failed to report item', error));
+  }
+}
 
 const removeItemAsAdmin = (item, isBan) => {
   return dispatch => {
@@ -210,6 +232,7 @@ export {
   refreshFeed,
   loadMoreItems,
   removeFeedItem,
+  reportFeedItem,
   removeItemAsAdmin,
   voteFeedItem,
   openLightBox,

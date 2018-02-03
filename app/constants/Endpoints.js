@@ -22,7 +22,8 @@ const EndpointUrls = {
   userProfile: (userId) => `${ROOT_URL}/users?userId=${userId}`,
   login: `${ROOT_URL}/login`,
   adminFeedItem: (itemId) => `${ROOT_URL}/admin/feed/${itemId}`, // For deleting items as admin
-  shadowBan: (uuid) => `${ROOT_URL}/admin/users/${uuid}/ban`
+  shadowBan: (uuid) => `${ROOT_URL}/admin/users/${uuid}/ban`,
+  reportItem: `${ROOT_URL}/reports/`
 };
 
 const EndpointTypes = _.map(EndpointUrls, (item, key) => key);

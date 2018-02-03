@@ -17,10 +17,10 @@ import {
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import { connect } from 'react-redux';
-import abuse from '../../services/abuse';
 import time from '../../utils/time';
 import theme from '../../style/theme';
 import { openRegistrationView } from '../../actions/registration';
+import { reportFeedItem } from '../../actions/feed';
 import VotePanel from './VotePanel';
 
 const { width } = Dimensions.get('window');
@@ -261,7 +261,7 @@ class FeedListItem extends Component {
           { text: 'Cancel',
             onPress: () => this.deSelectItem() , style: 'cancel' },
           { text: 'Yes, report item',
-            onPress: () => { this.deSelectItem(); abuse.reportFeedItem(item) }, style: 'destructive' }
+            onPress: () => { this.deSelectItem(); this.props.reportFeedItem(item) }, style: 'destructive' }
         ]
       );
     }
@@ -405,6 +405,6 @@ const select = store => {
     isModerator: store.registration.get('isModerator')
   };
 };
-const mapDispatchToProps = { openRegistrationView };
+const mapDispatchToProps = { openRegistrationView, reportFeedItem };
 
 export default connect(select, mapDispatchToProps)(FeedListItem);

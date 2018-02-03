@@ -40,11 +40,16 @@ const getUnableToFindMessage = (payload) => {
   return 'Unable to find item: Item may be already deleted';
 }
 
+const getReportMessage = (payload) => {
+  return 'Reported post to moderators'
+}
+
 export {
   getMessage,
   getErrorMessage,
   getRateLimitMessage,
   getInvalidEventMessage,
   getUnauthorizedMessage,
-  getUnableToFindMessage
+  getUnableToFindMessage,
+  getReportMessage
 };

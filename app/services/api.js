@@ -80,6 +80,10 @@ const deleteFeedItem = item => {
   return _delete(Endpoints.urls.feedItem(item.id));
 };
 
+const reportItem = payload => {
+  return _post(Endpoints.urls.reportItem, payload);
+};
+
 const adminDelete = item => {
   // Delete as admin is put because the item is not really deleted, only hidden
   return _put(Endpoints.urls.adminFeedItem(item.id));
@@ -205,6 +209,7 @@ const queryParametrize = (url, query) => {
 
 export default {
   deleteFeedItem,
+  reportItem,
   adminDelete,
   shadowBan,
   voteFeedItem,
