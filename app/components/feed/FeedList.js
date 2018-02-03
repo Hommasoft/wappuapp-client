@@ -122,7 +122,10 @@ class FeedList extends Component {
 
     // Set feed position correctly when user opens comment chain while there is one open above
     if (closedCommentsSize > 0) {
-      this.refs._scrollView.scrollTo({y: (this.scrollPos - closedCommentsSize), animated: false});
+      let correctPos = this.scrollPos - closedCommentsSize;
+      if (correctPos > 0) {
+        this.refs._scrollView.scrollTo({y: correctPos, animated: false});
+      }
       this.props.storeClosedCommentViewSize(0);
     }
 
