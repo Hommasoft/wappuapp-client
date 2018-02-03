@@ -110,6 +110,9 @@ class RootView extends Component {
     AsyncStorage.getItem(modKey)
     .then(data => {
       const modInfo = data ? JSON.parse(data) : null;
+      if ( modInfo == null ) {
+        return;
+      }
       if (modInfo.admin) {
         store.dispatch({
           type: LOGIN_SUCCESS,
