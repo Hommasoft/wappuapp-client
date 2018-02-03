@@ -47,7 +47,7 @@ const fetchFeed = () => (dispatch, getState) => {
   }
 
   dispatch({ type: GET_FEED_REQUEST });
-  return api.fetchModels('feed', { cityId, sort})
+  return api.fetchModels('feed', { cityId, sort })
   .then(items => {
     dispatch({
       type: SET_FEED,
