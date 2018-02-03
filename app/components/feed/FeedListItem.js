@@ -301,7 +301,7 @@ class FeedListItem extends Component {
           { text: 'Cancel',
             onPress: () => this.deSelectItem(), style: 'cancel' },
           { text: 'Yes, remove item',
-            onPress: () => { this.deSelectItem(); this.removeThisItem() }, style: 'destructive' }
+            onPress: () => { this.deSelectItem(); this.removeItem(item) }, style: 'destructive' }
         ]
       );
     } else {
@@ -318,8 +318,8 @@ class FeedListItem extends Component {
     }
   }
 
-  removeThisItem() {
-    this.props.removeFeedItem(this.props.item);
+  removeItem(item) {
+    this.props.removeFeedItem(item);
   }
 
   // Render "remove" button, which is remove OR flag button,
@@ -457,7 +457,8 @@ class FeedListItem extends Component {
               commentCount={item.numberOfComments}
               loadComments={this.props.loadComments}
               onPressAction={this.props.onPressAction}
-              openUserPhotos={this.props.openUserPhotos}/>
+              openUserPhotos={this.props.openUserPhotos}
+              showRemoveDialog={this.showRemoveDialog.bind(this)}/>
           </View>
           : <View></View>
         }

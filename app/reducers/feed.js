@@ -93,7 +93,7 @@ export default function feed(state = initialState, action) {
         state;
     case UPDATE_COMMENT_COUNT:
       const oList = state.get('list');
-      const iIndex = oList.findIndex((item) => item.get('id') === action.id);
+      const iIndex = oList.findIndex((item) => item.get('id') == action.id);
 
       if (iIndex < 0) {
         console.log('Cannot find item from state:', iIndex);
@@ -115,8 +115,16 @@ export default function feed(state = initialState, action) {
       const itemIndex = originalList.findIndex((item) => item.get('id') === action.item.id);
 
       if (itemIndex < 0) {
-        console.log('Tried to delete item, but it was not found from state:', itemIndex);
-        return state;
+        // Check if deleted item was comment
+        const originalCommentList = state.get('comments');
+        itemIndex = originalCommentList.findIndex((item) => item.get('id') === action.item.id);
+
+        if (itemIndex < 0) {
+          console.log('Tried to delete item, but it was not found from state:', itemIndex);
+          return state;
+        } else {
+          return state.set('comments', originalCommentList.delete(itemIndex));
+        }
       } else {
         return state.set('list', originalList.delete(itemIndex));
       }
@@ -154,8 +162,8 @@ export default function feed(state = initialState, action) {
         comments: []
       });
 
-      case COMMENT_SIZE:
-         return state.set('closedCommentsSize', action.payload);
+    case COMMENT_SIZE:
+      return state.set('closedCommentsSize', action.payload);
 
     default:
       return state;

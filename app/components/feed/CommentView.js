@@ -53,7 +53,11 @@ class CommentView extends Component {
                     <TouchableOpacity activeOpacity={IOS ? 0.7 : 1} onPress={() => this.props.openUserPhotos(item.author)}>
                         <Text style={styles.itemAuthorName}>{item.author.name}</Text>
                     </TouchableOpacity>
-                    <Text style={styles.commentText}>{item.text}</Text>
+                    <TouchableOpacity
+                      activeOpacity={1}
+                      onLongPress={() => { this.props.showRemoveDialog(item)} }>
+                      <Text style={styles.commentText}>{item.text}</Text>
+                    </TouchableOpacity>
                   </View>
                 }
               />

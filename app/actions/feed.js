@@ -36,8 +36,6 @@ const {
   VOTE_FEED_ITEM_SUCCESS,
 } = createRequestActionTypes('VOTE_FEED_ITEM');
 
-const COMMENT_SIZE = 'COMMENT_SIZE';
-
 
 const fetchFeed = () => (dispatch, getState) => {
   dispatch(closedComments());
@@ -137,10 +135,16 @@ const updateCommentCount = parent_id => (dispatch, getState) => {
 const removeFeedItem = (item) => {
   return dispatch => {
     api.deleteFeedItem(item)
-      .then(() => dispatch({
-        type: DELETE_FEED_ITEM,
-        item
-      }))
+      .then(() => {
+        dispatch({
+          type: DELETE_FEED_ITEM,
+          item
+        });
+        // Update comment counter if deleted item was a comment
+        if (item.parent_id) {
+          dispatch(updateCommentCount(item.parent_id));
+        }
+      })
       .catch(error => console.log('Error when trying to delete feed item', error));
   };
 };
@@ -203,6 +207,7 @@ const closedComments = () => {
   return { type: COMMENTS_CLOSED };
 }
 
+const COMMENT_SIZE = 'COMMENT_SIZE';
 const storeClosedCommentViewSize = (size) => {
   return { type: COMMENT_SIZE, payload: size }
 }
