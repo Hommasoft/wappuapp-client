@@ -20,6 +20,7 @@ const EndpointUrls = {
   radio: `${ROOT_URL}/radio`,
   mood: `${ROOT_URL}/mood`,
   userProfile: (userId) => `${ROOT_URL}/users?userId=${userId}`,
+  commentCount: (itemId) => `${ROOT_URL}/refreshcommentnumber/${itemId}`,
   login: `${ROOT_URL}/login`,
   adminFeedItem: (itemId) => `${ROOT_URL}/admin/feed/${itemId}`, // For deleting items as admin
   shadowBan: (uuid) => `${ROOT_URL}/admin/users/${uuid}/ban`,

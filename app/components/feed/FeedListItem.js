@@ -22,6 +22,8 @@ import theme from '../../style/theme';
 import { openRegistrationView } from '../../actions/registration';
 import { reportFeedItem } from '../../actions/feed';
 import VotePanel from './VotePanel';
+import CommentView from './CommentView';
+import { loadComments, closedComments, storeClosedCommentViewSize, setInputReqPos } from '../../actions/feed';
 
 const { width } = Dimensions.get('window');
 const FEED_ITEM_MARGIN_DISTANCE = 0;
@@ -192,6 +194,40 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 12,
     lineHeight: 19,
+  },
+  feedItemBottomWrapper: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    paddingTop: 5
+  },
+  commentAmountItemWrapper: {
+    paddingRight: 15,
+    paddingBottom: 9,
+    alignSelf: "flex-end",
+    flexDirection: 'row'
+  },
+  commentListWrapper: {
+    backgroundColor: theme.lightgrey,
+    flexDirection: 'column',
+  },
+  commentIcon: {
+    color: theme.primary,
+  },
+  IconNumberStyle: {
+    position:'absolute',
+    right:3,
+    top:4,
+    width:20,
+    height:14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    textAlign: 'center',
+    backgroundColor: theme.primary,
+    color:'#000000',
+    fontSize: 10,
+    fontWeight: 'bold'
   }
 });
 
@@ -203,7 +239,28 @@ class FeedListItem extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { selected: false };
+    this.state = {
+      selected: false,
+      commentsVisible: false,
+      commentHeight: 0 };
+  }
+
+  componentWillReceiveProps({ commentList, openCommentId }) {
+    // Hide/Show comments if other comments are opened
+    if (openCommentId !== parseInt(this.props.item.id)) {
+      // If commentView is closed, store size of it for adjusting feed
+      if (this.state.commentsVisible && (openCommentId !== null) && (openCommentId < this.props.openCommentId)) {
+        this.props.storeClosedCommentViewSize(this.state.commentHeight);
+      }
+      this.setState({ commentsVisible: false });
+    }
+    else {
+      this.setState({ commentsVisible: true });
+    }
+  }
+
+  calcSize(event) {
+    this.setState({ commentHeight: event.nativeEvent.layout.height });
   }
 
   itemIsCreatedByMe(item) {
@@ -228,6 +285,15 @@ class FeedListItem extends Component {
     this.setState({ selected: false });
   }
 
+  toogleComments() {
+    if (this.state.commentsVisible) {
+      this.props.closedComments();
+    }
+    else {
+      this.props.loadComments(this.props.item.id, 0);
+    }
+  }
+
   showRemoveDialog(item) {
     if (this.itemIsCreatedByMe(item)) {
       Alert.alert(
@@ -237,7 +303,7 @@ class FeedListItem extends Component {
           { text: 'Cancel',
             onPress: () => this.deSelectItem(), style: 'cancel' },
           { text: 'Yes, remove item',
-            onPress: () => { this.deSelectItem(); this.removeThisItem() }, style: 'destructive' }
+            onPress: () => { this.deSelectItem(); this.removeItem(item) }, style: 'destructive' }
         ]
       );
     } else if (this.props.isModerator) {
@@ -267,8 +333,8 @@ class FeedListItem extends Component {
     }
   }
 
-  removeThisItem() {
-    this.props.removeFeedItem(this.props.item);
+  removeItem(item) {
+    this.props.removeFeedItem(item);
   }
 
   removeAsAdmin(isBan) {
@@ -383,17 +449,39 @@ class FeedListItem extends Component {
               <Text style={styles.feedItemListText}>{item.text}</Text>
             </View>
           }
+            <View style={styles.feedItemBottomWrapper}>
 
-          <VotePanel
-            item={item}
-            voteFeedItem={this.props.voteFeedItem}
-            openRegistrationView={this.props.openRegistrationView}
-          />
+              <VotePanel
+                item={item}
+                voteFeedItem={this.props.voteFeedItem}
+                openRegistrationView={this.props.openRegistrationView}
+              />
 
-          {/* this.renderRemoveButton(item) */}
+              <View style={styles.commentAmountItemWrapper}>
+                <TouchableOpacity onPress={() => this.toogleComments()}>
+                  <Icon name={'mode-comment'} size={26} style={styles.commentIcon}></Icon>
+                  <Text style={styles.IconNumberStyle}>{item.numberOfComments}</Text>
+                </TouchableOpacity>
+              </View>
 
-        </View>
+            </View>
+          </View>
         </TouchableOpacity>
+        {this.state.commentsVisible ?
+          <View style={styles.commentListWrapper} onLayout={(event) => this.calcSize(event)}>
+            <CommentView
+              parentId={this.props.item.id}
+              commentList={this.props.commentList}
+              commentListState={this.props.commentListState}
+              commentCount={item.numberOfComments}
+              loadComments={this.props.loadComments}
+              onSendComment={this.props.onSendComment}
+              openUserPhotos={this.props.openUserPhotos}
+              showRemoveDialog={this.showRemoveDialog.bind(this)}
+              setInputReqPos={this.props.setInputReqPos}/>
+          </View>
+          : <View></View>
+        }
       </View>
     );
   }
@@ -402,9 +490,12 @@ class FeedListItem extends Component {
 const select = store => {
   return {
     actionTypes: store.competition.get('actionTypes'),
+    commentList: store.feed.get('comments').toJS(),
+    commentListState: store.feed.get('commentState'),
+    openCommentId: parseInt(store.feed.get('openCommentId')),
     isModerator: store.registration.get('isModerator')
   };
 };
-const mapDispatchToProps = { openRegistrationView, reportFeedItem };
+const mapDispatchToProps = { openRegistrationView, loadComments, closedComments, storeClosedCommentViewSize, setInputReqPos, reportFeedItem };
 
 export default connect(select, mapDispatchToProps)(FeedListItem);

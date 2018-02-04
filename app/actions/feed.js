@@ -30,6 +30,17 @@ const {
   // Failure of refresh is also modeled as "success"
   // REFRESH_FEED_FAILURE
 } = createRequestActionTypes('REFRESH_FEED');
+
+const SET_COMMENTS = 'SET_COMMENTS';
+const APPEND_COMMENTS = 'APPEND_COMMENTS';
+const UPDATE_COMMENT_COUNT = 'UPDATE_COMMENT_COUNT';
+
+const {
+  LOAD_COMMENTS_REQUEST,
+  LOAD_COMMENTS_SUCCESS,
+  LOAD_COMMENTS_FAILURE
+} = createRequestActionTypes('LOAD_COMMENTS');
+
 const DELETE_FEED_ITEM = 'DELETE_FEED_ITEM';
 
 const {
@@ -39,6 +50,7 @@ const {
 
 
 const fetchFeed = () => (dispatch, getState) => {
+  dispatch(closedComments());
   const cityId = getCityId(getState());
   const sort = getFeedSortType(getState());
 
@@ -60,6 +72,7 @@ const fetchFeed = () => (dispatch, getState) => {
 };
 
 const refreshFeed = () => (dispatch, getState) => {
+  dispatch(closedComments());
   dispatch({ type: REFRESH_FEED_REQUEST });
 
   const cityId = getCityId(getState());
@@ -77,8 +90,8 @@ const refreshFeed = () => (dispatch, getState) => {
 };
 
 const loadMoreItems = (lastID) => (dispatch, getState) => {
-  dispatch({ type: REFRESH_FEED_REQUEST });
-
+  // Changing isRefreshing status while loading more feed, makes feed jump abnormaly
+  //dispatch({ type: REFRESH_FEED_REQUEST });
   const cityId = getCityId(getState());
   const sort = getFeedSortType(getState());
   return api.fetchMoreFeed(lastID, { cityId, sort })
@@ -87,19 +100,63 @@ const loadMoreItems = (lastID) => (dispatch, getState) => {
       type: APPEND_FEED,
       feed: items
     });
-    dispatch({ type: REFRESH_FEED_SUCCESS });
+    //dispatch({ type: REFRESH_FEED_SUCCESS });
     dispatch({ type: GET_FEED_SUCCESS });
   })
-  .catch(error => dispatch({ type: REFRESH_FEED_SUCCESS }));
+  //.catch(error => dispatch({ type: REFRESH_FEED_SUCCESS }));
 };
+
+const loadComments = (parent_id, offset) => (dispatch, getState) => {
+  // Don't change state when there are old comments in the feed to prevent feed from jumping
+  if (offset == 0) {
+    dispatch({
+      type: LOAD_COMMENTS_REQUEST,
+      parentId: parent_id
+     });
+  }
+  return api.fetchComments(parent_id, offset, {})
+  .then(items => {
+    if (offset > 0) {
+      dispatch({
+        type: APPEND_COMMENTS,
+        comment: items
+      });
+    } else {
+      dispatch({
+        type: SET_COMMENTS,
+        comment: items
+      });
+    }
+    dispatch(updateCommentCount(parent_id));
+    dispatch({ type: LOAD_COMMENTS_SUCCESS });
+  })
+  .catch(error => dispatch({ type: LOAD_COMMENTS_FAILURE }));
+};
+
+const updateCommentCount = parent_id => (dispatch, getState) => {
+  return api.refreshCommentCount(parent_id)
+  .then(response => {
+    dispatch({
+      type: UPDATE_COMMENT_COUNT,
+      id: parent_id,
+      value: response
+    });
+  })
+}
 
 const removeFeedItem = (item) => {
   return dispatch => {
     api.deleteFeedItem(item)
-      .then(() => dispatch({
-        type: DELETE_FEED_ITEM,
-        item
-      }))
+      .then(() => {
+        dispatch({
+          type: DELETE_FEED_ITEM,
+          item
+        });
+        // Update comment counter if deleted item was a comment
+        if (item.parent_id) {
+          dispatch(updateCommentCount(item.parent_id));
+        }
+      })
       .catch(error => console.log('Error when trying to delete feed item', error));
   };
 };
@@ -214,6 +271,22 @@ const closeLightBox = () => {
   return { type: CLOSE_LIGHTBOX };
 };
 
+const COMMENTS_CLOSED = 'COMMENTS_CLOSED';
+const closedComments = () => {
+  return { type: COMMENTS_CLOSED };
+}
+
+const COMMENT_SIZE = 'COMMENT_SIZE';
+const storeClosedCommentViewSize = (size) => {
+  return { type: COMMENT_SIZE, payload: size }
+}
+
+const SET_INPUT_POS = 'SET_INPUT_POS';
+const setInputReqPos = (pos) => {
+  return { type: SET_INPUT_POS, payload: pos }
+}
+
+
 export {
   SET_FEED,
   APPEND_FEED,
@@ -224,17 +297,31 @@ export {
   GET_FEED_FAILURE,
   REFRESH_FEED_REQUEST,
   REFRESH_FEED_SUCCESS,
+  SET_COMMENTS,
+  APPEND_COMMENTS,
+  UPDATE_COMMENT_COUNT,
+  LOAD_COMMENTS_REQUEST,
+  LOAD_COMMENTS_SUCCESS,
+  LOAD_COMMENTS_FAILURE,
   DELETE_FEED_ITEM,
   OPEN_LIGHTBOX,
   CLOSE_LIGHTBOX,
+  COMMENTS_CLOSED,
+  COMMENT_SIZE,
+  SET_INPUT_POS,
 
   fetchFeed,
   refreshFeed,
   loadMoreItems,
+  loadComments,
+  updateCommentCount,
   removeFeedItem,
   reportFeedItem,
   removeItemAsAdmin,
   voteFeedItem,
   openLightBox,
-  closeLightBox
+  closeLightBox,
+  closedComments,
+  storeClosedCommentViewSize,
+  setInputReqPos
 };

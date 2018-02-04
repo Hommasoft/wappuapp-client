@@ -10,7 +10,9 @@ import {
   RefreshControl,
   View,
   ScrollView,
-  Platform
+  Platform,
+  Keyboard,
+  Dimensions
 } from 'react-native';
 import { connect } from 'react-redux';
 import { ImagePickerManager } from 'NativeModules';
@@ -23,9 +25,13 @@ import { fetchFeed,
   removeFeedItem,
   removeItemAsAdmin,
   voteFeedItem,
-  openLightBox
+  openLightBox,
+  closedComments,
+  storeClosedCommentViewSize,
+  setInputReqPos
 } from '../../actions/feed';
 
+import { openRegistrationView } from '../../actions/registration';
 import { getUserTeam } from '../../reducers/registration';
 import permissions from '../../services/android-permissions';
 
@@ -42,6 +48,7 @@ import {
   updateCooldowns,
   postImage,
   postAction,
+  postComment,
   openTextActionView,
   openCheckInView
 } from '../../actions/competition';
@@ -83,7 +90,9 @@ class FeedList extends Component {
       showScrollTopButton: false,
       listAnimation: new Animated.Value(0),
       dataSource: new ListView.DataSource({ rowHasChanged: (row1, row2) => row1 !== row2 }),
-      editableImage: null
+      editableImage: null,
+      scrollPos: 0,
+      showActionButtons: true
     };
   }
 
@@ -91,18 +100,22 @@ class FeedList extends Component {
     this.props.fetchFeed();
 
     this.props.updateCooldowns();
+
+    this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow.bind(this));
+
   }
 
   // componentWillUnmount() {
   //   //this.clearInterval(this.updateCooldownInterval);
   // }
 
-  componentWillReceiveProps({ feed, feedListState }) {
+  componentWillReceiveProps({ feed, feedListState, openCommentId, closedCommentsSize }) {
     if (feed !== this.props.feed) {
       this.setState({
         dataSource: this.state.dataSource.cloneWithRows(feed.toJS())
       });
     }
+
     // Scroll to top when user does an action
     if (this.props.isSending){
       this.scrollTop();
@@ -112,6 +125,31 @@ class FeedList extends Component {
       this.animateList();
     }
 
+    // Set feed position correctly when user opens comment chain while there is one open above
+    if (closedCommentsSize > 0) {
+      let correctPos = this.state.scrollPos - closedCommentsSize;
+      if (correctPos > 0) {
+        this.refs._scrollView.scrollTo({y: correctPos, animated: false});
+      } else {
+        this.refs._scrollView.scrollTo({y: 0, animated: true});
+      }
+      this.props.storeClosedCommentViewSize(0);
+    }
+  }
+
+  _keyboardDidShow(e) {
+    const keyboardSize = e.endCoordinates.height;
+
+    // Scroll feed up if input for new comment will stay under keyboard
+    if (this.props.inputPos > 0) {
+      const { height } = Dimensions.get('window');
+      let freeSpace = height - keyboardSize - 70;
+      let diff = this.props.inputPos - freeSpace;
+      if (diff > 0) {
+        this.refs._scrollView.scrollTo({ y: this.state.scrollPos + diff, animated: true});
+      }
+    }
+    this.props.setInputReqPos(0);
   }
 
   animateList() {
@@ -129,9 +167,6 @@ class FeedList extends Component {
     }
   }
 
-  scrollPos: 0
-  showActionButtons: true
-
   @autobind
   _onScroll(event) {
     const { showScrollTopButton } = this.state;
@@ -147,18 +182,18 @@ class FeedList extends Component {
     }
 
     const SENSITIVITY = 25;
-    if (this.showActionButtons && isOverHideLimit && scrollTop - this.scrollPos > SENSITIVITY) {
-      this.showActionButtons = false;
+    if (this.state.showActionButtons && isOverHideLimit && scrollTop - this.state.scrollPos > SENSITIVITY) {
+      this.setState({showActionButtons: false});
       Animated.timing(this.state.actionButtonsAnimation, { toValue: 0, duration: 300 }).start();
     } else if (
-      !this.showActionButtons &&
-      ((isOverHideLimit && this.scrollPos - scrollTop > SENSITIVITY) || !isOverHideLimit)
+      !this.state.showActionButtons &&
+      ((isOverHideLimit && this.state.scrollPos - scrollTop > SENSITIVITY) || !isOverHideLimit)
     ) {
-      this.showActionButtons = true;
+      this.setState({showActionButtons: true});
       Animated.timing(this.state.actionButtonsAnimation, { toValue: 1, duration: 300 }).start();
     }
 
-    this.scrollPos = scrollTop;
+    this.setState({scrollPos: scrollTop});
 
   }
 
@@ -249,11 +284,19 @@ class FeedList extends Component {
         return this.chooseImage();
       case 'TEXT':
         return this.props.openTextActionView();
-      case 'CHECK_IN_EVENT': {
+      case 'CHECK_IN_EVENT':
         return this.props.openCheckInView();
-      }
       default:
         return this.props.postAction(type);
+    }
+  }
+
+  @autobind
+  onSendComment(text) {
+    if (this.props.isRegistrationInfoValid === false) {
+      this.props.openRegistrationView();
+    } else {
+      this.props.postComment(text, this.props.openCommentId, this.props.offset);
     }
   }
 
@@ -296,12 +339,15 @@ class FeedList extends Component {
                 voteFeedItem={this.props.voteFeedItem}
                 isRegistrationInfoValid={this.props.isRegistrationInfoValid}
                 openUserPhotos={this.openUserPhotos}
-                openLightBox={this.props.openLightBox} />
+                openLightBox={this.props.openLightBox}
+                onSendComment={this.onSendComment}/>
               }
               style={[styles.listView]}
               onScroll={this._onScroll}
               onEndReached={this.onLoadMoreItems}
-              refreshControl={refreshControl} />
+              refreshControl={refreshControl}
+              keyboardDismissMode={'on-drag'}
+              keyboardShouldPersistTaps={true} />
             </Animated.View>
 
             <ActionButtons
@@ -348,12 +394,17 @@ const mapDispatchToProps = {
   updateCooldowns,
   postImage,
   postAction,
+  postComment,
   openTextActionView,
   removeFeedItem,
   removeItemAsAdmin,
   voteFeedItem,
   openCheckInView,
-  openLightBox
+  openLightBox,
+  openRegistrationView,
+  closedComments,
+  storeClosedCommentViewSize,
+  setInputReqPos
 };
 
 const select = store => {
@@ -373,6 +424,10 @@ const select = store => {
 
     isRegistrationInfoValid,
     isLoadingUserData: store.registration.get('isLoading'),
+    openCommentId: store.feed.get('openCommentId'),
+    closedCommentsSize: store.feed.get('closedCommentsSize'),
+    inputPos: store.feed.get('inputPos'),
+    offset: store.feed.get('comments').toJS().length
   };
 };
 

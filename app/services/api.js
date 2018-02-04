@@ -17,7 +17,6 @@ const fetchModels = (modelType, params) => {
       return params[k] ? (encodeURIComponent(k) + '=' + encodeURIComponent(params[k])) : ''
     }).join('&');
   }
-
   return cachedFetch(url);
 };
 
@@ -31,6 +30,25 @@ const fetchMoreFeed = (beforeId, params) => {
 
   return cachedFetch(url);
 };
+
+const fetchComments = (parent_id, offset, params) => {
+  const extendedParams = Object.assign({ parent_id, offset, limit: 10 }, params);
+
+  let url = Endpoints.urls.feed;
+  url += '?' + Object.keys(extendedParams).map(k => {
+    return encodeURIComponent(k) + '=' + encodeURIComponent(extendedParams[k]);
+  }).join('&');
+
+  return wapuFetch(url)
+  .then(checkResponseStatus)
+  .then(response => response.json());
+};
+
+const refreshCommentCount = parent_id => {
+  return wapuFetch(Endpoints.urls.commentCount(parent_id))
+    .then(checkResponseStatus)
+    .then(response => response.json());
+}
 
 const postAction = (params, location, queryParams) => {
   let payload = Object.assign({}, params, { user: DeviceInfo.getUniqueID() });
@@ -215,6 +233,8 @@ export default {
   voteFeedItem,
   fetchModels,
   fetchMoreFeed,
+  fetchComments,
+  refreshCommentCount,
   postAction,
   postLogin,
   putUser,
