@@ -226,7 +226,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     backgroundColor: theme.primary,
     color:'#000000',
-    fontSize: 10
+    fontSize: 10,
+    fontWeight: 'bold'
   },
 });
 

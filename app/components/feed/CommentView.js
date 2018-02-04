@@ -70,9 +70,13 @@ class CommentView extends Component {
                 dataSource={this.state.dataSource}
                 renderRow={item =>
                   <View style={styles.commentItem}>
-                    <TouchableOpacity activeOpacity={IOS ? 0.7 : 1} onPress={() => this.props.openUserPhotos(item.author)}>
+                    <View style={styles.topCommentContainer}>
+                      <TouchableOpacity style={styles.authorContainer} onPress={() => this.props.openUserPhotos(item.author)}>
                         <Text style={styles.itemAuthorName}>{item.author.name}</Text>
-                    </TouchableOpacity>
+                        <Text style={styles.commentAuthorTeam}>{item.author.team}</Text>
+                      </TouchableOpacity>
+                      <Text style={styles.timestamp}>{time.getTimeAgo(item.createdAt)}</Text>
+                    </View>
                     <TouchableOpacity
                       activeOpacity={1}
                       onLongPress={() => { this.props.showRemoveDialog(item)} }>
@@ -151,21 +155,40 @@ const styles = StyleSheet.create({
   commentItem: {
     flexDirection: 'column',
     marginTop: 8,
-    marginLeft: 8,
-    marginRight: 8,
-    borderBottomColor: 'grey',
+    marginLeft: 12,
+    marginRight: 12,
+    borderBottomColor: '#BBB',
     borderBottomWidth: StyleSheet.hairlineWidth,
-    paddingBottom: 4
+    paddingBottom: 10
+  },
+  topCommentContainer: {
+    flexDirection: 'row',
+    flex: 1,
+    justifyContent: 'space-between'
+  },
+  authorContainer: {
+    justifyContent: 'flex-start',
+    flexDirection: 'row',
+    flex: 1
+  },
+  timestamp: {
+    color: '#AAA',
+    fontSize: 11
   },
   commentText: {
     textAlign: 'left',
-    fontSize: 13,
-    color: theme.dark,
+    fontSize: 14,
+    color: '#000',
     alignItems: 'flex-start',
-    flexWrap: 'wrap'
+    flexWrap: 'wrap',
+    paddingTop: 5,
+  },
+  commentAuthorTeam:{
+    fontSize:11,
+    color: '#aaa'
   },
   itemAuthorName: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: 'bold',
     color: theme.secondary,
     marginRight: 8
@@ -197,10 +220,10 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     height: 56,
     paddingLeft: 6
-
   },
   sendIcon: {
-    color: theme.primary
+    color: theme.primary,
+    paddingRight: 6
   },
 });
 
