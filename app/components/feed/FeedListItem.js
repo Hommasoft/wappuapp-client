@@ -17,10 +17,10 @@ import {
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import { connect } from 'react-redux';
-import abuse from '../../services/abuse';
 import time from '../../utils/time';
 import theme from '../../style/theme';
 import { openRegistrationView } from '../../actions/registration';
+import { reportFeedItem } from '../../actions/feed';
 import VotePanel from './VotePanel';
 import CommentView from './CommentView';
 import { loadComments, closedComments, storeClosedCommentViewSize, setInputReqPos } from '../../actions/feed';
@@ -306,6 +306,19 @@ class FeedListItem extends Component {
             onPress: () => { this.deSelectItem(); this.removeItem(item) }, style: 'destructive' }
         ]
       );
+    } else if (this.props.isModerator) {
+      Alert.alert(
+        'Moderator options:',
+        'Do you want to hide this item?',
+        [
+          { text: 'Cancel',
+            onPress: () => this.deSelectItem(), style: 'cancel' },
+          { text: 'Shadowban item',
+            onPress: () => { this.deSelectItem(); this.removeAsAdmin(false) }, style: 'destructive' },
+          { text: 'Shadowban item and user',
+            onPress: () => { this.deSelectItem(); this.removeAsAdmin(true) }, style: 'destructive' }
+        ]
+      );
     } else {
       Alert.alert(
         'Flag Content',
@@ -314,7 +327,7 @@ class FeedListItem extends Component {
           { text: 'Cancel',
             onPress: () => this.deSelectItem() , style: 'cancel' },
           { text: 'Yes, report item',
-            onPress: () => { this.deSelectItem(); abuse.reportFeedItem(item) }, style: 'destructive' }
+            onPress: () => { this.deSelectItem(); this.props.reportFeedItem(item) }, style: 'destructive' }
         ]
       );
     }
@@ -322,6 +335,10 @@ class FeedListItem extends Component {
 
   removeItem(item) {
     this.props.removeFeedItem(item);
+  }
+
+  removeAsAdmin(isBan) {
+    this.props.removeItemAsAdmin(this.props.item, isBan);
   }
 
   // Render "remove" button, which is remove OR flag button,
@@ -475,9 +492,10 @@ const select = store => {
     actionTypes: store.competition.get('actionTypes'),
     commentList: store.feed.get('comments').toJS(),
     commentListState: store.feed.get('commentState'),
-    openCommentId: parseInt(store.feed.get('openCommentId'))
+    openCommentId: parseInt(store.feed.get('openCommentId')),
+    isModerator: store.registration.get('isModerator')
   };
 };
-const mapDispatchToProps = { openRegistrationView, loadComments, closedComments, storeClosedCommentViewSize, setInputReqPos };
+const mapDispatchToProps = { openRegistrationView, loadComments, closedComments, storeClosedCommentViewSize, setInputReqPos, reportFeedItem };
 
 export default connect(select, mapDispatchToProps)(FeedListItem);

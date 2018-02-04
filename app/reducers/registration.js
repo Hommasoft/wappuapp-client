@@ -13,6 +13,12 @@ import {
   GET_USER_REQUEST,
   GET_USER_SUCCESS,
   GET_USER_FAILURE,
+  LOGIN_REQUEST,
+  LOGIN_SUCCESS,
+  LOGIN_FAILURE,
+  LOGOUT,
+  OPEN_LOGIN_VIEW,
+  CLOSE_LOGIN_VIEW,
   SELECT_TEAM,
   RESET
 } from '../actions/registration';
@@ -20,6 +26,8 @@ import {
 import {
   NO_SELECTED_CITY_FOUND
 } from '../concepts/city';
+
+import LoginStates from '../constants/LoginStates';
 
 import { getTeams } from './team';
 
@@ -29,7 +37,10 @@ const initialState = fromJS({
   selectedTeam: 0,
   isLoading: false,
   isError: false,
-  isIntroductionDismissed: false
+  isIntroductionDismissed: false,
+  isModerator: false,
+  loginStatus: LoginStates.NONE,
+  isLoginVisible: false,
 });
 
 export default function registration(state = initialState, action) {
@@ -82,6 +93,30 @@ export default function registration(state = initialState, action) {
         'uuid': action.payload.uuid,
         'isLoading': false
       });
+      case LOGIN_REQUEST:
+        return state.set('loginStatus', LoginStates.AUTHENTICATING);
+      case LOGIN_SUCCESS:
+        return state.merge({
+          'isModerator': action.payload.admin,
+          'loginStatus': LoginStates.SUCCESS,
+        });
+      case LOGIN_FAILURE:
+        return state.set(
+          'loginStatus', LoginStates.FAILED
+        );
+      // Only removes client flag for UI render, does not remove moderator status of uuid
+      case LOGOUT:
+        return state.merge({
+          'isModerator': false,
+          'loginStatus': LoginStates.NONE
+        });
+      case OPEN_LOGIN_VIEW:
+        return state.set('isLoginVisible', true);
+      case CLOSE_LOGIN_VIEW:
+        return state.merge({
+          'isLoginVisible': false,
+          'loginStatus': LoginStates.NONE
+        });
     default:
       return state;
   }

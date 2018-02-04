@@ -15,9 +15,8 @@ import theme from '../../style/theme';
 // import ModalBox from 'react-native-modalbox';
 
 import { openRegistrationView } from '../../actions/registration';
-import { voteFeedItem, removeFeedItem, closeLightBox } from '../../actions/feed';
+import { voteFeedItem, removeFeedItem, closeLightBox, removeItemAsAdmin, reportFeedItem } from '../../actions/feed';
 import { getLightboxItem } from '../../reducers/feed';
-import abuse from '../../services/abuse';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import PlatformTouchable from '../common/PlatformTouchable';
@@ -99,6 +98,19 @@ class LightBox extends Component {
             onPress: () => { this.removeThisItem(item); }, style: 'destructive' }
         ]
       );
+    } else if (this.props.isModerator) {
+      Alert.alert(
+        'Moderator options:',
+        'Do you want to hide this item?',
+        [
+          { text: 'Cancel',
+            onPress: () => {  console.log('Cancel Pressed'); }, style: 'cancel' },
+          { text: 'Shadowban item',
+            onPress: () => {  this.removeAsAdmin(item, false) }, style: 'destructive' },
+          { text: 'Shadowban item and user',
+            onPress: () => {  this.removeAsAdmin(item, true) }, style: 'destructive' }
+        ]
+      );
     } else {
       Alert.alert(
         'Flag Content',
@@ -107,7 +119,7 @@ class LightBox extends Component {
           { text: 'Cancel',
             onPress: () =>  {  console.log('Cancel Pressed'); }, style: 'cancel' },
           { text: 'Yes, report item',
-            onPress: () =>  {  abuse.reportFeedItem(item.toJS()); }, style: 'destructive' }
+            onPress: () =>  {  this.props.reportFeedItem(item.toJS()), this.onClose() }, style: 'destructive' }
         ]
       );
     }
@@ -115,6 +127,11 @@ class LightBox extends Component {
 
   removeThisItem(item) {
     this.props.removeFeedItem(item.toJS());
+    this.onClose();
+  }
+
+  removeAsAdmin(item, isBan) {
+    this.props.removeItemAsAdmin(item.toJS(), isBan);
     this.onClose();
   }
 
@@ -201,10 +218,17 @@ class LightBox extends Component {
             <View style={styles.toolbar__buttons}>
               {!isSystemUser &&
               <PlatformTouchable onPress={() => this.showRemoveDialog(lightBoxItem)}>
-                <View style={styles.toolbar__button}>
-                  <Icon style={styles.toolbar__icon} name={this.itemIsCreatedByMe(lightBoxItem) ? 'delete' : 'flag'} />
-                  <Text style={styles.toolbar__button__text}>{this.itemIsCreatedByMe(lightBoxItem) ? 'Remove' : 'Report'}</Text>
-                </View>
+                  {this.itemIsCreatedByMe(lightBoxItem) ?
+                    <View style={styles.toolbar__button}>
+                      <Icon style={styles.toolbar__icon} name='delete' />
+                      <Text style={styles.toolbar__button__text}>Remove</Text>
+                    </View>
+                  :
+                    <View style={styles.toolbar__button}>
+                      <Icon style={styles.toolbar__icon} name={this.props.isModerator ? 'block' : 'flag'} />
+                      <Text style={styles.toolbar__button__text}>{this.props.isModerator ? 'Ban' : 'Report'}</Text>
+                    </View>
+                  }
               </PlatformTouchable>
               }
               <PlatformTouchable onPress={this.onShare.bind(this, itemImage)}>
@@ -316,10 +340,11 @@ const select = store => {
   return {
     // lightBoxItem: store.feed.get('lightBoxItem'),
     lightBoxItem: getLightboxItem(store),
-    isLightBoxOpen: store.feed.get('isLightBoxOpen')
+    isLightBoxOpen: store.feed.get('isLightBoxOpen'),
+    isModerator: store.registration.get('isModerator')
   };
 };
 
-const mapDispatch = { removeFeedItem, closeLightBox, voteFeedItem, openRegistrationView };
+const mapDispatch = { removeFeedItem, closeLightBox, voteFeedItem, openRegistrationView, removeItemAsAdmin, reportFeedItem };
 
 export default connect(select, mapDispatch)(LightBox);
