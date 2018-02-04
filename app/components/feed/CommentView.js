@@ -138,6 +138,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginLeft: 30,
     marginRight: 5,
+    marginBottom: 5,
     borderRadius: 5,
     borderBottomWidth: IOS ? 0 : 1,
     borderBottomColor: 'rgba(0, 0, 0, .075)',

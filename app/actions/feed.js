@@ -182,10 +182,16 @@ const reportFeedItem = (item) => {
 const removeItemAsAdmin = (item, isBan) => {
   return dispatch => {
     api.adminDelete(item)
-      .then(() => dispatch({
-        type: DELETE_FEED_ITEM,
-        item
-      }))
+      .then(() => {
+        dispatch({
+          type: DELETE_FEED_ITEM,
+          item
+        });
+        // Update comment counter if deleted item was a comment
+        if (item.parent_id) {
+          dispatch(updateCommentCount(item.parent_id));
+        }
+      })
       .catch(error => {
         console.log('Error when trying to delete feed item as admin', error);
         if (error.response.status == '401') {

@@ -46,7 +46,11 @@ const closeCheckInView = () => {
 
 const _postAction = (payload, isComment, offset) => {
   return (dispatch, getState) => {
-    dispatch({ type: POST_ACTION_REQUEST });
+
+    // Only dispatch request if post is not comment to avoid jumping to top in Android
+    if (!isComment) {
+      dispatch({ type: POST_ACTION_REQUEST });
+    }
 
     const state = getState();
     const cityId = getCityId(state);

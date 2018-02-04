@@ -71,6 +71,7 @@ class UserView extends Component {
             numberOfLines={1}
             placeholderTextColor={'#000'}
             placeholder="Email"
+            underlineColorAndroid={'transparent'}
             value={this.state.email}/>
           <TextInput
             secureTextEntry={true}
@@ -84,6 +85,7 @@ class UserView extends Component {
             numberOfLines={1}
             placeholderTextColor={'#000'}
             placeholder="Password"
+            underlineColorAndroid={'transparent'}
             value={this.state.password} />
         </View>
         <View style={styles.buttons}>
@@ -157,13 +159,11 @@ class UserView extends Component {
               <View style={styles.info}>
                 <Text style={styles.infoText}>You are logged in as moderator</Text>
               </View>
-              <View style={styles.buttons}>
                 <Button
                   onPress={this.onCancel}
-                  style={styles.cancelButton}
+                  style={styles.okButton}
                   title={"Ok"}>
                 </Button>
-              </View>
             </View>
           :
             this.renderModalContent()
@@ -178,19 +178,23 @@ class UserView extends Component {
 const styles = StyleSheet.create({
   buttons:{
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     padding: 20,
     paddingBottom: 0,
     paddingLeft: 20,
     paddingRight: 20,
+    marginLeft: 70,
+    marginRight: 70
   },
   loginButton: {
-    flex: 1,
-    marginLeft: 10,
+    flex: 1
   },
   cancelButton: {
+    flex: 1
+  },
+  okButton: {
     flex: 1,
-    marginRight: 10,
+    justifyContent: 'center'
   },
   inputContainer: {
     marginTop: 10
@@ -202,7 +206,7 @@ const styles = StyleSheet.create({
     marginTop: 30,
     color:'#000',
     textAlign: 'center',
-    height: 30,
+    height: 50,
     width: width - 80,
     borderRadius: 8,
     backgroundColor: '#ddd'
@@ -210,7 +214,8 @@ const styles = StyleSheet.create({
   info: {
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 110
+    marginTop: 40,
+    marginBottom: 30
   },
   infoText: {
     fontSize: 22,

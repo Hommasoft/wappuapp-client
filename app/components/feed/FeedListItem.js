@@ -314,9 +314,9 @@ class FeedListItem extends Component {
           { text: 'Cancel',
             onPress: () => this.deSelectItem(), style: 'cancel' },
           { text: 'Shadowban item',
-            onPress: () => { this.deSelectItem(); this.removeAsAdmin(false) }, style: 'destructive' },
+            onPress: () => { this.deSelectItem(); this.removeAsAdmin(item, false) }, style: 'destructive' },
           { text: 'Shadowban item and user',
-            onPress: () => { this.deSelectItem(); this.removeAsAdmin(true) }, style: 'destructive' }
+            onPress: () => { this.deSelectItem(); this.removeAsAdmin(item, true) }, style: 'destructive' }
         ]
       );
     } else {
@@ -337,8 +337,8 @@ class FeedListItem extends Component {
     this.props.removeFeedItem(item);
   }
 
-  removeAsAdmin(isBan) {
-    this.props.removeItemAsAdmin(this.props.item, isBan);
+  removeAsAdmin(item, isBan) {
+    this.props.removeItemAsAdmin(item, isBan);
   }
 
   // Render "remove" button, which is remove OR flag button,

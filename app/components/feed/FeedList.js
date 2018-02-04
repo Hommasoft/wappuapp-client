@@ -138,18 +138,24 @@ class FeedList extends Component {
   }
 
   _keyboardDidShow(e) {
-    const keyboardSize = e.endCoordinates.height;
-
-    // Scroll feed up if input for new comment will stay under keyboard
-    if (this.props.inputPos > 0) {
-      const { height } = Dimensions.get('window');
-      let freeSpace = height - keyboardSize - 70;
-      let diff = this.props.inputPos - freeSpace;
-      if (diff > 0) {
-        this.refs._scrollView.scrollTo({ y: this.state.scrollPos + diff, animated: true});
+    // Fix for keyboard works only with Ios,
+    // Android got native fix for showing elements under keyboard.
+    // Disabling that native fix also disables keyboard event and
+    // therefore making it not possible to use this fix with Android.
+    if (IOS) {
+      const keyboardSize = e.endCoordinates.height;
+      // Scroll feed up if input for new comment will stay under keyboard
+      if (this.props.inputPos > 0) {
+        const { height } = Dimensions.get('window');
+        let freeSpace = height - keyboardSize - 70;
+        let diff = this.props.inputPos - freeSpace;
+        if (diff > 0) {
+          console.log('yee');
+          this.refs._scrollView.scrollTo({ y: this.state.scrollPos + diff, animated: true});
+        }
       }
+      this.props.setInputReqPos(0);
     }
-    this.props.setInputReqPos(0);
   }
 
   animateList() {
