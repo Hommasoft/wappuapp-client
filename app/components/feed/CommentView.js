@@ -163,13 +163,11 @@ const styles = StyleSheet.create({
   },
   topCommentContainer: {
     flexDirection: 'row',
-    flex: 1,
     justifyContent: 'space-between'
   },
   authorContainer: {
     justifyContent: 'flex-start',
     flexDirection: 'row',
-    flex: 1
   },
   timestamp: {
     color: '#AAA',

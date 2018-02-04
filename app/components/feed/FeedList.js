@@ -129,6 +129,8 @@ class FeedList extends Component {
       let correctPos = this.state.scrollPos - closedCommentsSize;
       if (correctPos > 0) {
         this.refs._scrollView.scrollTo({y: correctPos, animated: false});
+      } else {
+        this.refs._scrollView.scrollTo({y: 0, animated: true});
       }
       this.props.storeClosedCommentViewSize(0);
     }
