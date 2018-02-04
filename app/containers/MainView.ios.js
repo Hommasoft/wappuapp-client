@@ -15,7 +15,6 @@ import IOSTabNavigation from './Navigation';
 import RegistrationView from '../components/registration/RegistrationView';
 import CheckInActionView from '../components/actions/CheckInActionView';
 import TextActionView from '../components/actions/TextActionView';
-import CommentActionView from '../components/actions/CommentActionView';
 import LightBox from '../components/lightbox/Lightbox';
 import CitySelector from '../components/header/CitySelector';
 
@@ -58,7 +57,6 @@ class MainView extends Component {
         <RegistrationView />
         <CheckInActionView />
         <TextActionView />
-        <CommentActionView />
       </View>
     );
   }

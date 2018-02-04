@@ -22,7 +22,8 @@ import {
   VOTE_FEED_ITEM_REQUEST,
   CLOSE_LIGHTBOX,
   COMMENTS_CLOSED,
-  COMMENT_SIZE
+  COMMENT_SIZE,
+  SET_INPUT_POS
 } from '../actions/feed';
 import { getUserImages } from '../concepts/user';
 import { getEventImages } from './event';
@@ -61,7 +62,8 @@ const initialState = Immutable.fromJS({
   lightBoxItem: {},
   lightBoxItemId: {},
   isLightBoxOpen: false,
-  closedCommentsSize: 0
+  closedCommentsSize: 0,
+  inputPos: 0
 });
 
 export default function feed(state = initialState, action) {
@@ -164,6 +166,9 @@ export default function feed(state = initialState, action) {
 
     case COMMENT_SIZE:
       return state.set('closedCommentsSize', action.payload);
+
+    case SET_INPUT_POS:
+      return state.set('inputPos', action.payload);
 
     default:
       return state;

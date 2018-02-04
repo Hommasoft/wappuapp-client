@@ -212,6 +212,12 @@ const storeClosedCommentViewSize = (size) => {
   return { type: COMMENT_SIZE, payload: size }
 }
 
+const SET_INPUT_POS = 'SET_INPUT_POS';
+const setInputReqPos = (pos) => {
+  return { type: SET_INPUT_POS, payload: pos }
+}
+
+
 export {
   SET_FEED,
   APPEND_FEED,
@@ -233,6 +239,7 @@ export {
   CLOSE_LIGHTBOX,
   COMMENTS_CLOSED,
   COMMENT_SIZE,
+  SET_INPUT_POS,
 
   fetchFeed,
   refreshFeed,
@@ -244,5 +251,6 @@ export {
   openLightBox,
   closeLightBox,
   closedComments,
-  storeClosedCommentViewSize
+  storeClosedCommentViewSize,
+  setInputReqPos
 };

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Platform, ListView } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Platform, ListView, TextInput, Keyboard } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import theme from '../../style/theme';
@@ -12,7 +12,8 @@ class CommentView extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      dataSource: new ListView.DataSource({ rowHasChanged: (row1, row2) => row1 !== row2 })
+      dataSource: new ListView.DataSource({ rowHasChanged: (row1, row2) => row1 !== row2 }),
+      commentText: ''
     };
   }
 
@@ -22,6 +23,25 @@ class CommentView extends Component {
         dataSource: this.state.dataSource.cloneWithRows(commentList)
       });
     }
+  }
+
+  checkInputPosition() {
+    this.refs._input.measure((w, h, px, py, fx, fy) => {
+      this.props.setInputReqPos(fy);
+    })
+  }
+
+  onSendText() {
+    if (!this.state.commentText.length) {
+      return;
+    }
+    this.props.onSendComment(this.state.commentText);
+    this.setState({commentText: ''});
+    Keyboard.dismiss();
+  }
+
+  onChangeText(text) {
+    this.setState({commentText: text});
   }
 
   renderComments() {
@@ -72,10 +92,25 @@ class CommentView extends Component {
                   </TouchableOpacity>
                 </View>
               :
-                <View>
-                  <TouchableOpacity activeOpacity={IOS ? 0.7 : 1} onPress={() => this.props.onPressAction('COMMENT')}>
-                    <Icon name={'add'} size={20} style={[styles.newCommentIcon]}></Icon>
-                  </TouchableOpacity>
+                <View style={styles.inputContainer}>
+                  <TextInput
+                    ref='_input'
+                    autoFocus={false}
+                    multiline={true}
+                    onFocus={this.checkInputPosition.bind(this)}
+                    autoCapitalize={'sentences'}
+                    underlineColorAndroid={'transparent'}
+                    clearButtonMode={'while-editing'}
+                    returnKeyType={'send'}
+                    blurOnSubmit={true}
+                    onSubmitEditing={this.onSendText.bind(this)}
+                    style={styles.inputField}
+                    onChangeText={this.onChangeText.bind(this)}
+                    maxLength={151}
+                    placeholder="Write a new comment ..."
+                    placeholderTextColor={'#888'}
+                    value={this.state.commentText} />
+                  <Icon name={'arrow-forward'} size={22} style={styles.sendIcon} onPress={() => this.onSendText()}/>
                 </View>
               }
             </View>
@@ -136,8 +171,6 @@ const styles = StyleSheet.create({
     marginRight: 8
   },
   bottomCommentItem: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
     marginTop: 8,
     marginLeft: 8,
     marginRight: 8
@@ -150,10 +183,25 @@ const styles = StyleSheet.create({
     color: theme.primary,
     fontStyle: 'italic'
   },
-  newCommentIcon: {
-    color: theme.primary,
-    fontStyle: "italic"
-  }
+  inputContainer: {
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexDirection: 'row',
+    backgroundColor: '#F9F9F9',
+    borderRadius: 4
+  },
+  inputField: {
+    textAlignVertical: 'top',
+    flex: 1,
+    fontSize: 14,
+    textAlign: 'left',
+    height: 56,
+    paddingLeft: 6
+
+  },
+  sendIcon: {
+    color: theme.primary
+  },
 });
 
 

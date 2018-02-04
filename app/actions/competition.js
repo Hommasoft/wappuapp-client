@@ -22,8 +22,6 @@ const {
 
 const OPEN_TEXTACTION_VIEW = 'OPEN_TEXTACTION_VIEW';
 const CLOSE_TEXTACTION_VIEW = 'CLOSE_TEXTACTION_VIEW';
-const OPEN_COMMENTACTION_VIEW = 'OPEN_COMMENTACTION_VIEW';
-const CLOSE_COMMENTACTION_VIEW = 'CLOSE_COMMENTACTION_VIEW';
 const OPEN_CHECKIN_VIEW = 'OPEN_CHECKIN_VIEW';
 const CLOSE_CHECKIN_VIEW = 'CLOSE_CHECKIN_VIEW';
 const SHOW_NOTIFICATION = 'SHOW_NOTIFICATION';
@@ -36,14 +34,6 @@ const openTextActionView = () => {
 
 const closeTextActionView = () => {
   return { type: CLOSE_TEXTACTION_VIEW };
-};
-
-const openCommentActionView = (id) => {
-   return { type: OPEN_COMMENTACTION_VIEW, parentId: id };
-};
-
-const closeCommentActionView = () => {
-  return { type: CLOSE_COMMENTACTION_VIEW };
 };
 
 const openCheckInView = () => {
@@ -170,10 +160,8 @@ export {
   GET_ACTION_TYPES_SUCCESS,
   GET_ACTION_TYPES_FAILURE,
   OPEN_TEXTACTION_VIEW,
-  OPEN_COMMENTACTION_VIEW,
   OPEN_CHECKIN_VIEW,
   CLOSE_CHECKIN_VIEW,
-  CLOSE_COMMENTACTION_VIEW,
   CLOSE_TEXTACTION_VIEW,
   SHOW_NOTIFICATION,
   HIDE_NOTIFICATION,
@@ -187,8 +175,6 @@ export {
   closeCheckInView,
   openTextActionView,
   closeTextActionView,
-  openCommentActionView,
-  closeCommentActionView,
   fetchActionTypes,
   updateCooldowns
 };

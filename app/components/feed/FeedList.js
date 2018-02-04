@@ -10,7 +10,9 @@ import {
   RefreshControl,
   View,
   ScrollView,
-  Platform
+  Platform,
+  Keyboard,
+  Dimensions
 } from 'react-native';
 import { connect } from 'react-redux';
 import { ImagePickerManager } from 'NativeModules';
@@ -24,7 +26,8 @@ import { fetchFeed,
   voteFeedItem,
   openLightBox,
   closedComments,
-  storeClosedCommentViewSize
+  storeClosedCommentViewSize,
+  setInputReqPos
 } from '../../actions/feed';
 
 import { openRegistrationView } from '../../actions/registration';
@@ -44,8 +47,8 @@ import {
   updateCooldowns,
   postImage,
   postAction,
+  postComment,
   openTextActionView,
-  openCommentActionView,
   openCheckInView
 } from '../../actions/competition';
 import reactMixin from 'react-mixin';
@@ -86,17 +89,18 @@ class FeedList extends Component {
       showScrollTopButton: false,
       listAnimation: new Animated.Value(0),
       dataSource: new ListView.DataSource({ rowHasChanged: (row1, row2) => row1 !== row2 }),
-      editableImage: null
+      editableImage: null,
+      scrollPos: 0,
+      showActionButtons: true
     };
   }
-
-  scrollPos: 0
-  showActionButtons: true
 
   componentDidMount() {
     this.props.fetchFeed();
 
     this.props.updateCooldowns();
+
+    this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow.bind(this));
 
   }
 
@@ -122,13 +126,27 @@ class FeedList extends Component {
 
     // Set feed position correctly when user opens comment chain while there is one open above
     if (closedCommentsSize > 0) {
-      let correctPos = this.scrollPos - closedCommentsSize;
+      let correctPos = this.state.scrollPos - closedCommentsSize;
       if (correctPos > 0) {
         this.refs._scrollView.scrollTo({y: correctPos, animated: false});
       }
       this.props.storeClosedCommentViewSize(0);
     }
+  }
 
+  _keyboardDidShow(e) {
+    const keyboardSize = e.endCoordinates.height;
+
+    // Scroll feed up if input for new comment will stay under keyboard
+    if (this.props.inputPos > 0) {
+      const { height } = Dimensions.get('window');
+      let freeSpace = height - keyboardSize - 70;
+      let diff = this.props.inputPos - freeSpace;
+      if (diff > 0) {
+        this.refs._scrollView.scrollTo({ y: this.state.scrollPos + diff, animated: true});
+      }
+    }
+    this.props.setInputReqPos(0);
   }
 
   animateList() {
@@ -161,18 +179,18 @@ class FeedList extends Component {
     }
 
     const SENSITIVITY = 25;
-    if (this.showActionButtons && isOverHideLimit && scrollTop - this.scrollPos > SENSITIVITY) {
-      this.showActionButtons = false;
+    if (this.state.showActionButtons && isOverHideLimit && scrollTop - this.state.scrollPos > SENSITIVITY) {
+      this.setState({showActionButtons: false});
       Animated.timing(this.state.actionButtonsAnimation, { toValue: 0, duration: 300 }).start();
     } else if (
-      !this.showActionButtons &&
-      ((isOverHideLimit && this.scrollPos - scrollTop > SENSITIVITY) || !isOverHideLimit)
+      !this.state.showActionButtons &&
+      ((isOverHideLimit && this.state.scrollPos - scrollTop > SENSITIVITY) || !isOverHideLimit)
     ) {
-      this.showActionButtons = true;
+      this.setState({showActionButtons: true});
       Animated.timing(this.state.actionButtonsAnimation, { toValue: 1, duration: 300 }).start();
     }
 
-    this.scrollPos = scrollTop;
+    this.setState({scrollPos: scrollTop});
 
   }
 
@@ -264,14 +282,17 @@ class FeedList extends Component {
         return this.props.openTextActionView();
       case 'CHECK_IN_EVENT':
         return this.props.openCheckInView();
-      case 'COMMENT':
-      if (this.props.isRegistrationInfoValid === false) {
-        this.props.openRegistrationView();
-      } else {
-        return this.props.openCommentActionView(this.props.openCommentId);
-      }
       default:
         return this.props.postAction(type);
+    }
+  }
+
+  @autobind
+  onSendComment(text) {
+    if (this.props.isRegistrationInfoValid === false) {
+      this.props.openRegistrationView();
+    } else {
+      this.props.postComment(text, this.props.openCommentId, this.props.offset);
     }
   }
 
@@ -316,12 +337,14 @@ class FeedList extends Component {
                 isRegistrationInfoValid={this.props.isRegistrationInfoValid}
                 openUserPhotos={this.openUserPhotos}
                 openLightBox={this.props.openLightBox}
-                onPressAction={this.onPressAction}/>
+                onSendComment={this.onSendComment}/>
               }
               style={[styles.listView]}
               onScroll={this._onScroll}
               onEndReached={this.onLoadMoreItems}
-              refreshControl={refreshControl} />
+              refreshControl={refreshControl}
+              keyboardDismissMode={'on-drag'}
+              keyboardShouldPersistTaps={true} />
             </Animated.View>
 
             <ActionButtons
@@ -368,15 +391,16 @@ const mapDispatchToProps = {
   updateCooldowns,
   postImage,
   postAction,
+  postComment,
   openTextActionView,
-  openCommentActionView,
   removeFeedItem,
   voteFeedItem,
   openCheckInView,
   openLightBox,
   openRegistrationView,
   closedComments,
-  storeClosedCommentViewSize
+  storeClosedCommentViewSize,
+  setInputReqPos
 };
 
 const select = store => {
@@ -397,7 +421,9 @@ const select = store => {
     isRegistrationInfoValid,
     isLoadingUserData: store.registration.get('isLoading'),
     openCommentId: store.feed.get('openCommentId'),
-    closedCommentsSize: store.feed.get('closedCommentsSize')
+    closedCommentsSize: store.feed.get('closedCommentsSize'),
+    inputPos: store.feed.get('inputPos'),
+    offset: store.feed.get('comments').toJS().length
   };
 };
 

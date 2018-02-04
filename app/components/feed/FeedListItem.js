@@ -23,7 +23,7 @@ import theme from '../../style/theme';
 import { openRegistrationView } from '../../actions/registration';
 import VotePanel from './VotePanel';
 import CommentView from './CommentView';
-import { loadComments, closedComments, storeClosedCommentViewSize } from '../../actions/feed';
+import { loadComments, closedComments, storeClosedCommentViewSize, setInputReqPos } from '../../actions/feed';
 
 const { width } = Dimensions.get('window');
 const FEED_ITEM_MARGIN_DISTANCE = 0;
@@ -456,9 +456,10 @@ class FeedListItem extends Component {
               commentListState={this.props.commentListState}
               commentCount={item.numberOfComments}
               loadComments={this.props.loadComments}
-              onPressAction={this.props.onPressAction}
+              onSendComment={this.props.onSendComment}
               openUserPhotos={this.props.openUserPhotos}
-              showRemoveDialog={this.showRemoveDialog.bind(this)}/>
+              showRemoveDialog={this.showRemoveDialog.bind(this)}
+              setInputReqPos={this.props.setInputReqPos}/>
           </View>
           : <View></View>
         }
@@ -475,6 +476,6 @@ const select = store => {
     openCommentId: parseInt(store.feed.get('openCommentId'))
   };
 };
-const mapDispatchToProps = { openRegistrationView, loadComments, closedComments, storeClosedCommentViewSize };
+const mapDispatchToProps = { openRegistrationView, loadComments, closedComments, storeClosedCommentViewSize, setInputReqPos };
 
 export default connect(select, mapDispatchToProps)(FeedListItem);
