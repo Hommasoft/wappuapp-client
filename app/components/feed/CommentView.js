@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
   },
   authorContainer: {
     justifyContent: 'flex-start',
-    flexDirection: 'row',
+    flexDirection: 'column'
   },
   timestamp: {
     color: '#AAA',
@@ -217,7 +217,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'left',
     height: 56,
-    paddingLeft: 6
+    paddingLeft: 6,
+    paddingBottom:6
   },
   sendIcon: {
     color: theme.primary,
