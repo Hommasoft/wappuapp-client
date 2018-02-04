@@ -21,6 +21,8 @@ import {
   OPEN_LIGHTBOX,
   VOTE_FEED_ITEM_REQUEST,
   CLOSE_LIGHTBOX,
+  OPEN_REPORT_VIEW,
+  CLOSE_REPORT_VIEW,
   COMMENTS_CLOSED,
   COMMENT_SIZE,
   SET_INPUT_POS
@@ -63,7 +65,9 @@ const initialState = Immutable.fromJS({
   lightBoxItemId: {},
   isLightBoxOpen: false,
   closedCommentsSize: 0,
-  inputPos: 0
+  inputPos: 0,
+  reportViewVisible: false,
+  reportItem: {}
 });
 
 export default function feed(state = initialState, action) {
@@ -162,6 +166,12 @@ export default function feed(state = initialState, action) {
         commentState: LoadingStates.NONE,
         comments: []
       });
+
+    case OPEN_REPORT_VIEW:
+      return state.merge({reportViewVisible: true, reportItem: action.payload});
+
+    case CLOSE_REPORT_VIEW:
+      return state.set('reportViewVisible', false);
 
     case COMMENT_SIZE:
       return state.set('closedCommentsSize', action.payload);

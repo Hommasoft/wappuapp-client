@@ -20,10 +20,10 @@ import { connect } from 'react-redux';
 import time from '../../utils/time';
 import theme from '../../style/theme';
 import { openRegistrationView } from '../../actions/registration';
-import { reportFeedItem } from '../../actions/feed';
 import VotePanel from './VotePanel';
 import CommentView from './CommentView';
-import { loadComments, closedComments, storeClosedCommentViewSize, setInputReqPos } from '../../actions/feed';
+import ReportView from './ReportView';
+import { loadComments, closedComments, storeClosedCommentViewSize, setInputReqPos, openReportView } from '../../actions/feed';
 
 const { width } = Dimensions.get('window');
 const FEED_ITEM_MARGIN_DISTANCE = 0;
@@ -327,7 +327,7 @@ class FeedListItem extends Component {
           { text: 'Cancel',
             onPress: () => this.deSelectItem() , style: 'cancel' },
           { text: 'Yes, report item',
-            onPress: () => { this.deSelectItem(); this.props.reportFeedItem(item) }, style: 'destructive' }
+            onPress: () => { this.deSelectItem(); this.props.openReportView(item) }, style: 'destructive' }
         ]
       );
     }
@@ -365,7 +365,6 @@ class FeedListItem extends Component {
   }
 
   renderAdminItem(item, ago) {
-
     return (
       <View style={styles.itemWrapper}>
         <View style={[styles.itemContent, styles.itemContent__admin]}>
@@ -414,6 +413,7 @@ class FeedListItem extends Component {
 
     return (
       <View style={styles.itemWrapper}>
+        <ReportView></ReportView>
         <TouchableOpacity
           activeOpacity={1}
           style={styles.itemTouchable}
@@ -496,6 +496,13 @@ const select = store => {
     isModerator: store.registration.get('isModerator')
   };
 };
-const mapDispatchToProps = { openRegistrationView, loadComments, closedComments, storeClosedCommentViewSize, setInputReqPos, reportFeedItem };
+const mapDispatchToProps = {
+  openRegistrationView,
+  loadComments,
+  closedComments,
+  storeClosedCommentViewSize,
+  setInputReqPos,
+  openReportView
+};
 
 export default connect(select, mapDispatchToProps)(FeedListItem);

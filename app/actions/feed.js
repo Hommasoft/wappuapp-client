@@ -161,11 +161,11 @@ const removeFeedItem = (item) => {
   };
 };
 
-const reportFeedItem = (item) => {
+const reportFeedItem = (item, desc) => {
   const body = {
-    feedItemId: item.id,
+    feedItemId: item.toJS().id,
     reportCreatorUuid: USER_UUID,
-    reportDescription: 'Reported' // Currently no UI to give description
+    reportDescription: desc
   }
   return dispatch => {
     api.reportItem(body)
@@ -277,6 +277,17 @@ const closeLightBox = () => {
   return { type: CLOSE_LIGHTBOX };
 };
 
+const OPEN_REPORT_VIEW = 'OPEN_REPORT_VIEW';
+const CLOSE_REPORT_VIEW = 'CLOSE_REPORT_VIEW';
+
+const openReportView = (item) => {
+  return { type: OPEN_REPORT_VIEW, payload: item };
+}
+
+const closeReportView = () => {
+  return { type: CLOSE_REPORT_VIEW }
+}
+
 const COMMENTS_CLOSED = 'COMMENTS_CLOSED';
 const closedComments = () => {
   return { type: COMMENTS_CLOSED };
@@ -312,6 +323,8 @@ export {
   DELETE_FEED_ITEM,
   OPEN_LIGHTBOX,
   CLOSE_LIGHTBOX,
+  OPEN_REPORT_VIEW,
+  CLOSE_REPORT_VIEW,
   COMMENTS_CLOSED,
   COMMENT_SIZE,
   SET_INPUT_POS,
@@ -327,6 +340,8 @@ export {
   voteFeedItem,
   openLightBox,
   closeLightBox,
+  openReportView,
+  closeReportView,
   closedComments,
   storeClosedCommentViewSize,
   setInputReqPos
