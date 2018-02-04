@@ -75,7 +75,6 @@ export default function feed(state = initialState, action) {
         state.set('list', Immutable.fromJS(state.get('list')
           .concat(Immutable.fromJS(action.feed)))) :
         state;
-
     case GET_FEED_REQUEST:
       return state.set('listState', LoadingStates.LOADING);
     case GET_FEED_SUCCESS:

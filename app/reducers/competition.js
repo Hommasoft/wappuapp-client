@@ -28,8 +28,7 @@ const initialState = Immutable.fromJS({
   isTextActionViewOpen: false,
   isCheckInViewOpen: false,
   isNotificationVisible: false,
-  notificationText: '',
-  parentId: null
+  notificationText: ''
 });
 
 const getDisabledActions = (state) => {

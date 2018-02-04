@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
     color:'#000000',
     fontSize: 10,
     fontWeight: 'bold'
-  },
+  }
 });
 
 class FeedListItem extends Component {
@@ -239,7 +239,8 @@ class FeedListItem extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { selected: false,
+    this.state = {
+      selected: false,
       commentsVisible: false,
       commentHeight: 0 };
   }

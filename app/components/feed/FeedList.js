@@ -325,10 +325,8 @@ class FeedList extends Component {
             <Animated.View style={{ opacity: this.state.listAnimation, transform: [
               { translateY: this.state.listAnimation.interpolate({ inputRange: [0, 1], outputRange: [50, 0] })}
             ]}}>
-
             <ListView
               ref='_scrollView'
-
               dataSource={this.state.dataSource}
               renderRow={item => <FeedListItem
                 item={item}
