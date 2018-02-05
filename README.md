@@ -29,6 +29,12 @@
   - Redux architecture using [ducks](https://github.com/erikras/ducks-modular-redux). See `/app/concepts`
   - Data processing in concepts and minimize logic in views
 
+- Hommasoft updates
+  - Feed items can be commented
+  - Reports are sent straight to backend
+  - Hidden login for moderators
+  - Moderators can shadowban any feed item or any non-moderator user
+
 ## Release
 
 ### iOS
