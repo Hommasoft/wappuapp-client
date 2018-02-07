@@ -102,6 +102,8 @@ class LightBox extends Component {
       Alert.alert(
         'Moderator options:',
         'Do you want to hide this item?',
+        // IOS and android will show options in different order, make sure item ban option is before user ban
+        IOS ?
         [
           { text: 'Cancel',
             onPress: () => {  console.log('Cancel Pressed'); }, style: 'cancel' },
@@ -109,6 +111,15 @@ class LightBox extends Component {
             onPress: () => {  this.removeAsAdmin(item, false) }, style: 'destructive' },
           { text: 'Shadowban item and user',
             onPress: () => {  this.removeAsAdmin(item, true) }, style: 'destructive' }
+        ]
+      :
+        [
+          { text: 'Cancel',
+            onPress: () => {  console.log('Cancel Pressed'); }, style: 'cancel' },
+          { text: 'Shadowban item and user',
+            onPress: () => {  this.removeAsAdmin(item, true) }, style: 'destructive' },
+          { text: 'Shadowban item',
+            onPress: () => {  this.removeAsAdmin(item, false) }, style: 'destructive' }
         ]
       );
     } else {

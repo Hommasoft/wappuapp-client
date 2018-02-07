@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     margin: 0,
     marginLeft: 40,
-    marginTop: 30,
+    marginTop: 10,
     color:'#000',
     textAlign: 'center',
     height: 50,

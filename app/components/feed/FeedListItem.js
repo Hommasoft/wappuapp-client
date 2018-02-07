@@ -310,14 +310,25 @@ class FeedListItem extends Component {
       Alert.alert(
         'Moderator options:',
         'Do you want to hide this item?',
-        [
-          { text: 'Cancel',
-            onPress: () => this.deSelectItem(), style: 'cancel' },
-          { text: 'Shadowban item',
-            onPress: () => { this.deSelectItem(); this.removeAsAdmin(item, false) }, style: 'destructive' },
-          { text: 'Shadowban item and user',
-            onPress: () => { this.deSelectItem(); this.removeAsAdmin(item, true) }, style: 'destructive' }
-        ]
+        // IOS and android will show options in different order, make sure item ban option is before user ban
+        IOS ?
+          [
+            { text: 'Cancel',
+              onPress: () => this.deSelectItem(), style: 'cancel' },
+            { text: 'Shadowban item',
+              onPress: () => { this.deSelectItem(); this.removeAsAdmin(item, false) }, style: 'destructive' },
+            { text: 'Shadowban item and user',
+              onPress: () => { this.deSelectItem(); this.removeAsAdmin(item, true) }, style: 'destructive' }
+          ]
+        :
+          [
+            { text: 'Cancel',
+              onPress: () => this.deSelectItem(), style: 'cancel' },
+            { text: 'Shadowban item and user',
+              onPress: () => { this.deSelectItem(); this.removeAsAdmin(item, true) }, style: 'destructive' },
+            { text: 'Shadowban item',
+              onPress: () => { this.deSelectItem(); this.removeAsAdmin(item, false) }, style: 'destructive' }
+          ]
       );
     } else {
       Alert.alert(
