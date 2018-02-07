@@ -17,7 +17,6 @@ const fetchModels = (modelType, params) => {
       return params[k] ? (encodeURIComponent(k) + '=' + encodeURIComponent(params[k])) : ''
     }).join('&');
   }
-
   return cachedFetch(url);
 };
 
@@ -32,6 +31,25 @@ const fetchMoreFeed = (beforeId, params) => {
   return cachedFetch(url);
 };
 
+const fetchComments = (parent_id, offset, params) => {
+  const extendedParams = Object.assign({ parent_id, offset, limit: 10 }, params);
+
+  let url = Endpoints.urls.feed;
+  url += '?' + Object.keys(extendedParams).map(k => {
+    return encodeURIComponent(k) + '=' + encodeURIComponent(extendedParams[k]);
+  }).join('&');
+
+  return wapuFetch(url)
+  .then(checkResponseStatus)
+  .then(response => response.json());
+};
+
+const refreshCommentCount = parent_id => {
+  return wapuFetch(Endpoints.urls.commentCount(parent_id))
+    .then(checkResponseStatus)
+    .then(response => response.json());
+}
+
 const postAction = (params, location, queryParams) => {
   let payload = Object.assign({}, params, { user: DeviceInfo.getUniqueID() });
 
@@ -41,6 +59,11 @@ const postAction = (params, location, queryParams) => {
   }
 
   return _post(Endpoints.urls.action, payload, queryParams);
+};
+
+const postLogin = payload => {
+  return _post(Endpoints.urls.login, payload, '')
+  .then(response => response.json());
 };
 
 const putMood = (params) => {
@@ -73,6 +96,19 @@ const getUser = uuid => {
 
 const deleteFeedItem = item => {
   return _delete(Endpoints.urls.feedItem(item.id));
+};
+
+const reportItem = payload => {
+  return _post(Endpoints.urls.reportItem, payload);
+};
+
+const adminDelete = item => {
+  // Delete as admin is put because the item is not really deleted, only hidden
+  return _put(Endpoints.urls.adminFeedItem(item.id));
+};
+
+const shadowBan = item => {
+  return _put(Endpoints.urls.shadowBan(item.author.id));
 };
 
 const voteFeedItem = payload => {
@@ -132,14 +168,11 @@ const checkResponseStatus = response => {
   if (response.status >= 200 && response.status < 400) {
     return response;
   } else {
-    return response.json()
-      .then(res => {
-        console.log('Error catched', response.statusText);
-        const error = new Error(response.statusText);
-        error.response = response;
-        error.responseJson = res;
-        throw error;
-      });
+    console.log('Error catched', response.statusText);
+    const error = new Error(response.statusText);
+    error.response = response;
+    error.responseJson = response.json();
+    throw error;
   }
 };
 
@@ -194,10 +227,16 @@ const queryParametrize = (url, query) => {
 
 export default {
   deleteFeedItem,
+  reportItem,
+  adminDelete,
+  shadowBan,
   voteFeedItem,
   fetchModels,
   fetchMoreFeed,
+  fetchComments,
+  refreshCommentCount,
   postAction,
+  postLogin,
   putUser,
   putMood,
   getUser,

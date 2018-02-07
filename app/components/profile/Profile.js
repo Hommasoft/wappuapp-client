@@ -241,7 +241,7 @@ class Profile extends Component {
         activeOpacity={0.6}
         delayPressIn={0}
         style={styles.listItemButton}
-        onPress={() => navigator.push({ name: title, component, showName: true })}>
+        onPress={() => navigator.push({ name: title, component, isMe: true, showName: true })}>
         <View style={linkItemStyles}>
           <View style={styles.listItem}>
             <Icon style={styles.listItemIcon} name={item.icon} />

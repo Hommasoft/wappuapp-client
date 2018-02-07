@@ -11,10 +11,21 @@ import {
   GET_FEED_FAILURE,
   REFRESH_FEED_REQUEST,
   REFRESH_FEED_SUCCESS,
+  SET_COMMENTS,
+  APPEND_COMMENTS,
+  UPDATE_COMMENT_COUNT,
+  LOAD_COMMENTS_REQUEST,
+  LOAD_COMMENTS_SUCCESS,
+  LOAD_COMMENTS_FAILURE,
   DELETE_FEED_ITEM,
   OPEN_LIGHTBOX,
   VOTE_FEED_ITEM_REQUEST,
-  CLOSE_LIGHTBOX
+  CLOSE_LIGHTBOX,
+  OPEN_REPORT_VIEW,
+  CLOSE_REPORT_VIEW,
+  COMMENTS_CLOSED,
+  COMMENT_SIZE,
+  SET_INPUT_POS
 } from '../actions/feed';
 import { getUserImages } from '../concepts/user';
 import { getEventImages } from './event';
@@ -45,11 +56,18 @@ export const getLightboxItem = createSelector(
 // # Reducer
 const initialState = Immutable.fromJS({
   list: [],
+  comments: [], // Open comments in the client
+  openCommentId: null,  // parentId of the open comments
   listState: LoadingStates.NONE,
+  commentState: LoadingStates.NONE,
   isRefreshing: false,
   lightBoxItem: {},
   lightBoxItemId: {},
-  isLightBoxOpen: false
+  isLightBoxOpen: false,
+  closedCommentsSize: 0,
+  inputPos: 0,
+  reportViewVisible: false,
+  reportItem: {}
 });
 
 export default function feed(state = initialState, action) {
@@ -71,13 +89,47 @@ export default function feed(state = initialState, action) {
       return state.set('isRefreshing', true);
     case REFRESH_FEED_SUCCESS:
       return state.set('isRefreshing', false);
+    case SET_COMMENTS:
+      return state.set('comments', Immutable.fromJS(action.comment));
+    case APPEND_COMMENTS:
+      return (action.comment && action.comment.length) ?
+        state.set('comments', Immutable.fromJS(state.get('comments')
+          .concat(Immutable.fromJS(action.comment)))) :
+        state;
+    case UPDATE_COMMENT_COUNT:
+      const oList = state.get('list');
+      const iIndex = oList.findIndex((item) => item.get('id') == action.id);
+
+      if (iIndex < 0) {
+        console.log('Cannot find item from state:', iIndex);
+        return state;
+      } else {
+        return state.set('list', oList.setIn([iIndex, 'numberOfComments'], action.value))
+      }
+    case LOAD_COMMENTS_REQUEST:
+      return state.merge({
+        'commentState': LoadingStates.LOADING,
+        'openCommentId': action.parentId
+      });
+    case LOAD_COMMENTS_SUCCESS:
+      return state.set('commentState', LoadingStates.READY);
+    case LOAD_COMMENTS_FAILURE:
+      return state.set('commentState', LoadingStates.FAILED);
     case DELETE_FEED_ITEM:
       const originalList = state.get('list');
       const itemIndex = originalList.findIndex((item) => item.get('id') === action.item.id);
 
       if (itemIndex < 0) {
-        console.log('Tried to delete item, but it was not found from state:', itemIndex);
-        return state;
+        // Check if deleted item was comment
+        const originalCommentList = state.get('comments');
+        itemIndex = originalCommentList.findIndex((item) => item.get('id') === action.item.id);
+
+        if (itemIndex < 0) {
+          console.log('Tried to delete item, but it was not found from state:', itemIndex);
+          return state;
+        } else {
+          return state.set('comments', originalCommentList.delete(itemIndex));
+        }
       } else {
         return state.set('list', originalList.delete(itemIndex));
       }
@@ -106,7 +158,26 @@ export default function feed(state = initialState, action) {
       return state.merge({
         isLightBoxOpen: false,
         lightBoxItemId: null,
-      })
+      });
+
+    case COMMENTS_CLOSED:
+      return state.merge({
+        openCommentId: null,
+        commentState: LoadingStates.NONE,
+        comments: []
+      });
+
+    case OPEN_REPORT_VIEW:
+      return state.merge({reportViewVisible: true, reportItem: action.payload});
+
+    case CLOSE_REPORT_VIEW:
+      return state.set('reportViewVisible', false);
+
+    case COMMENT_SIZE:
+      return state.set('closedCommentsSize', action.payload);
+
+    case SET_INPUT_POS:
+      return state.set('inputPos', action.payload);
 
     default:
       return state;
