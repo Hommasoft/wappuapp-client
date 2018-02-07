@@ -150,7 +150,6 @@ class FeedList extends Component {
         let freeSpace = height - keyboardSize - 70;
         let diff = this.props.inputPos - freeSpace;
         if (diff > 0) {
-          console.log('yee');
           this.refs._scrollView.scrollTo({ y: this.state.scrollPos + diff, animated: true});
         }
       }
